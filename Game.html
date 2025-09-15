@@ -20,6 +20,7 @@
 <body>
     <canvas id="canv"></canvas>
     <!-- Engine-specific Code -->
+    <script src="./engine/Engine.js"></script>
     <script src="./engine/Vector2.js"></script>
     <script src="./engine/Scene.js"></script>
     <script src="./engine/SceneManager.js"></script>
@@ -43,45 +44,8 @@
     <script src="./game/components/HexSpawnController.js"></script>
     <script src="./game/components/HexStateController.js"></script>
     <script>
-        const canvas = document.querySelector("#canv")
-        const ctx = canvas.getContext("2d")
-
-        let currentScene = SceneManager.addScene(new GameScene())
-
-        function start() {
-            resizeCanvas()
-            currentScene.start()
-            gameLoop()
-        }
-
-        function gameLoop() {
-            update()
-            draw()
-            requestAnimationFrame(gameLoop)
-        }
-
-        function update() {
-            currentScene.update()
-        }
-
-        function draw() {
-            ctx.fillStyle = "#00102aff"
-            ctx.beginPath()
-            ctx.rect(0, 0, canvas.width, canvas.height)
-            ctx.fill()
-
-            currentScene.draw(ctx)
-        }
-
-        function resizeCanvas() {
-            canvas.width = (window.innerWidth)
-            canvas.height = (window.innerHeight)
-        }
-
-        // addEventListener("keydown", Input.keydown)
-        // addEventListener("keyup", Input.keyup)
-        addEventListener("resize", resizeCanvas)
-        requestAnimationFrame(start)
+        Engine.currentScene = SceneManager.addScene(new GameScene())
+        requestAnimationFrame(Engine.start)
     </script>
 </body>
 

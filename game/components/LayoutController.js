@@ -36,7 +36,7 @@ class LayoutController extends Component {
     }
 
     draw() {
-        
+
     }
 
     computeLayout() {
@@ -89,7 +89,7 @@ class LayoutController extends Component {
 
     updateHexCenters() {
         const grid = this.gameObject.getComponent("GridController")
-        
+
         for (let col = 0; col < this.totalColumns; col++) {
             for (let row = 0; row < this.totalRows; row++) {
                 const key = HexCoordinates.getKeyFromOffset(col, row)
