@@ -2,7 +2,7 @@ class Engine {
     static start() {
         Engine.canvas = document.querySelector("#canv")
         Engine.ctx = Engine.canvas.getContext("2d")
-        addEventListener("resize", Engine.resizeCanvas)
+        addEventListener("resize", Engine.resizeCanvas)  // Just to not recalc every draw call
 
         Engine.resizeCanvas()
         Engine.currentScene.start()
@@ -29,7 +29,7 @@ class Engine {
     }
 
     static resizeCanvas() {
-        Engine.canvas.width = (window.innerWidth)
-        Engine.canvas.height = (window.innerHeight)
+        Engine.canvas.width = window.innerWidth
+        Engine.canvas.height = window.innerHeight
     }
 }

@@ -19,7 +19,7 @@ class LayoutController extends Component {
         this.hexVertexOffsets = []
         for (let i = 0; i < 6; i++) this.hexVertexOffsets[i] = Vector2.zero
 
-        this.canvas = document.querySelector("#canv")
+        // Cache previous canvas dimensions
         this.lastW = 0
         this.lastH = 0
 
@@ -28,7 +28,7 @@ class LayoutController extends Component {
     }
 
     update() {
-        if (this.canvas.width !== this.lastW || this.canvas.height !== this.lastH) {
+        if (Engine.canvas.width !== this.lastW || Engine.canvas.height !== this.lastH) {
             this.computeLayout()
             this.updateHexVertexOffsets()
             this.updateHexCenters()
@@ -40,9 +40,6 @@ class LayoutController extends Component {
     }
 
     computeLayout() {
-        const canvasWidth = window.innerWidth
-        const canvasHeight = window.innerHeight
-
         const r = this.baseHexRadius
         const hexW = 2 * r
         const hexH = Math.sqrt(3) * r
@@ -52,8 +49,8 @@ class LayoutController extends Component {
         const baseGridWidth = (this.totalColumns - 1) * hSpacing + hexW
         const baseGridHeight = (this.totalRows - 1) * vSpacing + vSpacing * 0.5
 
-        const targetW = canvasWidth * this.screenWidthPct
-        const targetH = canvasHeight * this.screenHeightPct
+        const targetW = Engine.canvas.width * this.screenWidthPct
+        const targetH = Engine.canvas.height * this.screenHeightPct
 
         this.scale = Math.min(targetW / baseGridWidth, targetH / baseGridHeight)
 
@@ -66,11 +63,11 @@ class LayoutController extends Component {
         const gridW = baseGridWidth * this.scale
         const gridH = baseGridHeight * this.scale
 
-        this.offsetX = Math.floor((this.canvas.width - gridW) / 2)
-        this.offsetY = Math.floor((this.canvas.height - gridH) / 2)
+        this.offsetX = Math.floor((Engine.canvas.width - gridW) / 2)
+        this.offsetY = Math.floor((Engine.canvas.height - gridH) / 2)
 
-        this.lastW = this.canvas.width
-        this.lastH = this.canvas.height
+        this.lastW = Engine.canvas.width
+        this.lastH = Engine.canvas.height
     }
 
     getHexCenter(col, row) {
