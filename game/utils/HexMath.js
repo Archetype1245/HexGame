@@ -8,16 +8,21 @@ class HexMath {
         new HexCoordinates(1, 0),
     ]
 
-    static offsetToAxial(col, row) {
-        const q = col
-        const r = row - ((col - (col & 1)) / 2) - (col & 1)
-        return new HexCoordinates(q, r)
+    static Direction = {
+        Southeast: 0,
+        South:     1,
+        Southwest: 2,
+        Northwest: 3,
+        North:     4,
+        Northeast: 5
     }
 
-    static axialToOffset(coords) {
-        const col = coords.q
-        const row = coords.r + ((col - (col & 1)) / 2) + (col & 1)
-        return new Vector2(col, row)
+    static rMinForGivenQ(q) {
+        return -((q + (q & 1)) / 2) || 0
+    }
+
+    static rToOffset(q, r) {
+        return r + q - Math.floor(q / 2)
     }
 
     static getNeighbor(axial, dirIndex) {

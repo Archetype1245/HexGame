@@ -29,7 +29,6 @@ class LayoutController extends Component {
         this.computeLayout()
         this.updateHexVertexOffsets()
         this.calcNodeOutlineVertices()
-        console.log(this.nodeOutlineOffsets)
     }
 
     update() {
@@ -72,15 +71,19 @@ class LayoutController extends Component {
         const gridH = baseGridHeight * this.scale
 
         this.offsetX = Math.floor((Engine.canvas.width - gridW) / 2)
-        this.offsetY = Math.floor((Engine.canvas.height - gridH) / 2)
+        this.offsetY = Math.floor((Engine.canvas.height - gridH) / 2) - this.hexH * 0.5
 
         this.lastW = Engine.canvas.width
         this.lastH = Engine.canvas.height
     }
 
-    getHexCenter(col, row) {
-        const cx = this.offsetX + (this.hexW / 2) + col * this.hSpacing
-        const cy = this.offsetY + (this.hexH / 2) + row * this.vSpacing + (col % 2 ? this.vSpacing * 0.5 : 0)
+    getHexCenter(axial) {
+        const q = axial.q
+        const r = axial.r
+        const row = HexMath.rToOffset(q, r)
+        const cx = this.offsetX + (this.hexW / 2) + q * this.hSpacing
+        const cy = Engine.canvas.height - this.offsetY - (this.hexH / 2) - row * this.vSpacing + (q % 2 ? this.vSpacing * 0.5 : 0)
+
         return new Vector2(cx, cy)
     }
 
@@ -125,7 +128,8 @@ class LayoutController extends Component {
             for (let r = row; r < row + this.totalRows; r++) {
                 const key = HexCoordinates.getKeyFrom(new HexCoordinates(q, r))
                 const cell = grid.axialInfo.get(key)
-                cell.hex.transform.position = this.getHexCenter(col, row)
+                const axial = new HexCoordinates(q, r)
+                cell.hex.transform.position = this.getHexCenter(axial)
             }
         }
     }

@@ -1,6 +1,11 @@
 class Scene {
+    started = false
     gameObjects = []
+    layerGroups = new Map()
+    sortedLayers = []
+
     start() {
+        this.started = true
         for (const gameObject of this.gameObjects) {
             gameObject.start()
         }
@@ -25,10 +30,10 @@ class Scene {
         let layerGroup = this.layerGroups.get(layer)
         if (!layerGroup) {
             layerGroup = new Set()
-            
+
             this.layerGroups.set(layer, layerGroup)
             // Insert layer value at the appropriate index
-            // Could binary search, but don't anticipate having a huge scene count
+            // Could binary search, but don't anticipate having a huge layer count
             const idx = this.sortedLayers.findIndex(i => i > layer)
             if (idx === -1) {
                 this.sortedLayers.push(layer)
@@ -49,7 +54,7 @@ class Scene {
         gameObject.layer = layer ?? 0
         currentScene.addToLayer(layer, gameObject)
 
-        if(position)
+        if (position)
             gameObject.transform.position = position
         // Start the gameobject if the scene is already started, otherwise let it automatically start when the scene does
         if (currentScene.started) {
