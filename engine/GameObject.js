@@ -1,6 +1,7 @@
 class GameObject {
     name = ""
     components = []
+    markForDeleted = false
     constructor(name) {
         this.name = name
         this.addComponent(new Transform())
@@ -37,5 +38,9 @@ class GameObject {
 
     get transform() {
         return this.components[0]
+    }
+
+    destroy() {
+        this.markForDelete = true
     }
 }

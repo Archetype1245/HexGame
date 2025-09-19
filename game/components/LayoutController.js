@@ -21,13 +21,12 @@ class LayoutController extends Component {
 
         this.nodeOutlineOffsets = [[],[]]
 
-
-        // Cache previous canvas dimensions
+        // Cache previous canvas dimensions - probably end up changing eventually
         this.lastW = 0
         this.lastH = 0
 
         this.computeLayout()
-        this.updateHexVertexOffsets()
+        this.calcHexVertexOffsets()
         this.calcNodeOutlineVertices()
     }
 
@@ -36,7 +35,7 @@ class LayoutController extends Component {
         // TODO: Replace this logic with camera scaling as needed.
         if (Engine.canvas.width !== this.lastW || Engine.canvas.height !== this.lastH) {
             this.computeLayout()
-            this.updateHexVertexOffsets()
+            this.calcHexVertexOffsets()
             this.updateHexCenters()
             // Skipping node positioning updates - waiting for camera implementation
         }
@@ -87,8 +86,7 @@ class LayoutController extends Component {
         return new Vector2(cx, cy)
     }
 
-    // TODO: Can probably rename to `calcHexVertexOffsets` after camera is added
-    updateHexVertexOffsets() {
+    calcHexVertexOffsets() {
         for (let i = 0; i < 6; i++) {
             const angle = i * (Math.PI / 3)
             this.hexVertexOffsets[i].x = this.radius * Math.cos(angle)
@@ -98,8 +96,8 @@ class LayoutController extends Component {
 
     calcNodeOutlineVertices() {
         /*
-        0,  120, 240 at r = 2*r = hexW
-        60, 180, 300 at r = r
+        0,  120, 240 at r
+        60, 180, 300 at 2*r = hexW
         30, 90, 150, 210, 270, 330 = c
         */
         let angle = Math.PI / 3

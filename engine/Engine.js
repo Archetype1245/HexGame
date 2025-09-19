@@ -3,6 +3,8 @@ class Engine {
         Engine.canvas = document.querySelector("#canv")
         Engine.ctx = Engine.canvas.getContext("2d")
         addEventListener("resize", Engine.resizeCanvas)  // Just to not recalc every draw call
+        addEventListener("keydown", Input.keyDown)
+        addEventListener("keyup", Input.keyUp)
 
         Engine.resizeCanvas()
         Engine.currentScene.start()
@@ -26,7 +28,6 @@ class Engine {
         Engine.ctx.fill()
 
         Engine.currentScene.draw(Engine.ctx)
-
     }
 
     static resizeCanvas() {

@@ -34,15 +34,10 @@ class GridController extends Component {
             for (let r = row; r < row + this.totalRows; r++) {
                 const axial = new HexCoordinates(q, r)
                 const pos = this.layout.getHexCenter(axial)
-                const hex = this.hexSpawner.spawnHex(pos)
+                const hex = this.hexSpawner.spawnHex(pos, axial, /*initial=*/true)
 
-                // This is here simply to ensure the spawner doesn't need to know more than it has to (ex: layout)
-                hex.gameObject.addComponent(new Polygon(), {
-                    points: this.layout.hexVertexOffsets,
-                    lineWidth: HexGridConfig.visuals.hexOutlinePx,
-                    strokeStyle: HexGridConfig.visuals.hexOutlineColor,
-                    fillStyle: hex.color
-                })
+                // This is here simply to ensure the spawner doesn't need to know more than it has to (layout)
+                hex.gameObject.getComponent("Polygon").points = this.layout.hexVertexOffsets
 
                 this.axialInfo.set(HexCoordinates.getKeyFrom(axial), {
                     hex: hex
@@ -52,7 +47,7 @@ class GridController extends Component {
 
         // DEBUG VISUAL ONLY
         let overlay = new GameObject("DebugVisualGameObject")
-        overlay.addComponent(new DebugOverlayController(), { model: this, layout: this.layout })
+        overlay.addComponent(new DebugController(), { model: this })
         Scene.instantiate(overlay, { layer: 100 })
     }
 
@@ -71,22 +66,24 @@ class GridController extends Component {
                         this.layout.getHexCenter(n2Coords))
 
                     const node = this.nodeSpawner.spawnNode(nodePos)
-
-                    // This is here simply to ensure the spawner doesn't need to know more than it has to (ex: layout)
-                    const outlineVariation = vertex % 2
-                    node.gameObject.addComponent(new Polygon(), {
-                        points: this.layout.nodeOutlineOffsets[outlineVariation],
-                        strokeStyle: HexGridConfig.visuals.nodeOutlineColor,
-                        lineWidth: 6,
-                        fill: false,
-                        hidden: true
-                    })
-
                     node.neighbors = [hexCoords, n1Coords, n2Coords]
                     node.neighbors.sort(HexCoordinates.compareCoords)
                     this.nodeInfo.set(HexCoordinates.getKeyFrom(node.neighbors), node)
+
+                    this.calcOutlineOffsets(node, vertex)
                 }
             }
         }
+    }
+
+    calcOutlineOffsets(node, vertexIndex) {
+        const outlineVariation = vertexIndex % 2
+        node.gameObject.addComponent(new Polygon(), {
+            points: this.layout.nodeOutlineOffsets[outlineVariation],
+            strokeStyle: HexGridConfig.visuals.nodeOutlineColor,
+            lineWidth: 6,
+            fill: false,
+            hidden: true
+        })
     }
 }

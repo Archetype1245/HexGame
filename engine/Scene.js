@@ -15,6 +15,8 @@ class Scene {
         for (const gameObject of this.gameObjects) {
             gameObject.update()
         }
+
+        this.gameObjects = this.gameObjects.filter(go => !go.markForDelete)
     }
 
     draw(ctx) {
@@ -54,12 +56,9 @@ class Scene {
         gameObject.layer = layer ?? 0
         currentScene.addToLayer(layer, gameObject)
 
-        if (position)
-            gameObject.transform.position = position
+        if (position) gameObject.transform.position = position
         // Start the gameobject if the scene is already started, otherwise let it automatically start when the scene does
-        if (currentScene.started) {
-            gameObject.start()
-        }
+        if (currentScene.started) gameObject.start()
         return gameObject
     }
 }
