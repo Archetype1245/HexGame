@@ -19,19 +19,27 @@ class LayoutController extends Component {
         this.hexVertexOffsets = []
         for (let i = 0; i < 6; i++) this.hexVertexOffsets[i] = Vector2.zero
 
+        this.nodeOutlineOffsets = [[],[]]
+
+
         // Cache previous canvas dimensions
         this.lastW = 0
         this.lastH = 0
 
         this.computeLayout()
         this.updateHexVertexOffsets()
+        this.calcNodeOutlineVertices()
+        console.log(this.nodeOutlineOffsets)
     }
 
     update() {
+        // TODO: None of this is necessary once camera is implemented.
+        // TODO: Replace this logic with camera scaling as needed.
         if (Engine.canvas.width !== this.lastW || Engine.canvas.height !== this.lastH) {
             this.computeLayout()
             this.updateHexVertexOffsets()
             this.updateHexCenters()
+            // Skipping node positioning updates - waiting for camera implementation
         }
     }
 
@@ -76,6 +84,7 @@ class LayoutController extends Component {
         return new Vector2(cx, cy)
     }
 
+    // TODO: Can probably rename to `calcHexVertexOffsets` after camera is added
     updateHexVertexOffsets() {
         for (let i = 0; i < 6; i++) {
             const angle = i * (Math.PI / 3)
@@ -84,12 +93,37 @@ class LayoutController extends Component {
         }
     }
 
+    calcNodeOutlineVertices() {
+        /*
+        0,  120, 240 at r = 2*r = hexW
+        60, 180, 300 at r = r
+        30, 90, 150, 210, 270, 330 = c
+        */
+        let angle = Math.PI / 3
+        let r = this.radius
+        const c = Math.sqrt(2 * r**2 * (1 - Math.cos(2*angle)))
+
+        for (let i = 0; i < 12; i++) {
+            const mod = i % 4
+            r = (mod === 0) ? this.radius
+              : (mod === 2) ? this.hexW
+              : c
+
+            for (let j of [0,1]) {
+                angle = i * (Math.PI / 6) + (Math.PI * j)
+                this.nodeOutlineOffsets[j][i] = new Vector2(r * Math.cos(angle), r * Math.sin(angle))
+            }
+        }
+    }
+
+    // TODO: Shouldn't need after camera code is added
     updateHexCenters() {
         const grid = this.gameObject.getComponent("GridController")
 
-        for (let col = 0; col < this.totalColumns; col++) {
-            for (let row = 0; row < this.totalRows; row++) {
-                const key = HexCoordinates.getKeyFromOffset(col, row)
+        for (let q = 0; q < this.totalColumns; q++) {
+            let row = HexMath.rMinForGivenQ(q)
+            for (let r = row; r < row + this.totalRows; r++) {
+                const key = HexCoordinates.getKeyFrom(new HexCoordinates(q, r))
                 const cell = grid.axialInfo.get(key)
                 cell.hex.transform.position = this.getHexCenter(col, row)
             }

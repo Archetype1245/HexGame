@@ -30,6 +30,7 @@
 
     <script src="./engine/Transform.js"></script>
     <script src="./engine/Polygon.js"></script>
+    <script src="./engine/Circle.js"></script>
 
     <!-- Game-specific Code -->
     <script src="./game/utils/HexGridConfig.js"></script>
@@ -39,10 +40,16 @@
     <script src="./game/scenes/GameScene.js"></script>
     <script src="./game/prefabs/HexGridGameObject.js"></script>
     <script src="./game/prefabs/HexGameObject.js"></script>
+    <script src="./game/prefabs/NodeGameObject.js"></script>
+    <script src="./game/prefabs/DebugVisualGameObject.js"></script>
     <script src="./game/components/LayoutController.js"></script>
     <script src="./game/components/GridController.js"></script>
     <script src="./game/components/HexSpawnController.js"></script>
-    <script src="./game/components/HexStateController.js"></script>
+    <script src="./game/components/NodeSpawnController.js"></script>
+    <script src="./game/components/HexController.js"></script>
+    <script src="./game/components/NodeController.js"></script>
+    <script src="./game/components/MatchController.js"></script>
+    <script src="./game/components/DebugOverlayController.js"></script>
     <script>
         Engine.currentScene = SceneManager.addScene(new GameScene())
         requestAnimationFrame(Engine.start)

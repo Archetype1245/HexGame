@@ -7,11 +7,14 @@ class HexGridConfig {
         screenHeightPct: 0.60
     }
     static visuals = {
-        background: "#0a0d12",
+        background: "#00102aff",
         hexOutlinePx: 3,
-        hexOutlineColor: "#9fb3ff"
+        hexOutlineColor: "#000000ff",
+        nodeOutlineColor: "white",
+        nodeColor: "yellow",
+        nodeRadius: 7
     }
-    static colors = {
+    static hexColors = {
         red: "#a70000ff",
         orange: "#ff8800ff",
         yellow: "#0092d1ff",

@@ -38,15 +38,4 @@ class GameObject {
     get transform() {
         return this.components[0]
     }
-
-    static instantiate(gameObject, position) {
-        let currentScene = SceneManager.getActiveScene()
-        currentScene.gameObjects.push(gameObject)
-
-        if (position)
-            gameObject.transform.position = position
-
-        gameObject.start()
-        return gameObject
-    }
 }

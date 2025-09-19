@@ -11,21 +11,11 @@ class HexSpawnController extends Component {
 
     }
 
-    spawnHex(position, axialCoords, layout){
-        const hexObject = new HexGameObject(axialCoords)
-        const hex = hexObject.getComponent("HexStateController")
-        const colors = Object.values(HexGridConfig.colors)             // TODO (placeholder)
+    spawnHex(position) {
+        const hexObject = new HexGameObject()
+        const hex = hexObject.getComponent("HexController")
 
-        hex.type = HexGridConfig.types.basic                           // TODO (placeholder)
-        hex.color = colors[Math.floor(Math.random() * colors.length)]  // TODO (placeholder)
-        GameObject.instantiate(hexObject, position)
-
-        hexObject.addComponent(new Polygon(), {
-            points: layout.hexVertexOffsets,
-            lineWidth: HexGridConfig.visuals.hexOutlinePx,
-            strokeStyle: HexGridConfig.visuals.hexOutlineColor,
-            fillStyle: hex.color
-        })
+        Scene.instantiate(hexObject, { position: position })
         return hex
     }
 }

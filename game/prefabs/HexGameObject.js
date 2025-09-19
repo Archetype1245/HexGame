@@ -1,6 +1,6 @@
 class HexGameObject extends GameObject {
-    constructor(axial) {
+    constructor() {
         super("HexGameObject");
-        this.addComponent(new HexStateController(axial))
+        this.addComponent(new HexController())
     }
 }

@@ -6,17 +6,16 @@ class HexCoordinates {
 
     static zero = new HexCoordinates(0, 0);
 
-    static getKeyFrom(coord) {
-        return `${coord.q},${coord.r}`
+    static getKeyFrom(coords) {
+        return coords.toString()
     }
 
-    toKey() {
-        return `${this.q},${this.r}`
+    toString() {
+        return `(${this.q},${this.r})`
     }
 
-    static getKeyFromOffset(col, row) {
-        const axialCoord = HexMath.offsetToAxial(col, row)
-        return axialCoord.toKey()
+    static compareCoords(c1, c2) {
+        return c1.q - c2.q || c1.r - c2.r
     }
 
     add(other) {

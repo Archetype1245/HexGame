@@ -32,6 +32,15 @@ class HexMath {
         }
         return neighbors
     }
+
+    static getCentroid(h1, h2, h3) {
+        return h1.plus(h2).plus(h3).times(1 / 3)
+    }
+
+    // I guess the `%` operator in JS is remainder, not modulus. Helper to calc mod.
+    static mod(n, m) {
+        return ((n % m) + m) % m
+    }
 }
 
 window.HexMath = HexMath;
