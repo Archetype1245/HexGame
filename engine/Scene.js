@@ -47,7 +47,7 @@ class Scene {
         layerGroup.add(gameObject)
     }
 
-    static instantiate(gameObject, { position = null, scene = null, layer = 0 } = {}) {
+    static instantiate(gameObject, { position = null, scene = null, layer = 0 }) {
         // Assign current scene to the given argument, otherwise grab it
         const currentScene = scene ?? SceneManager.getActiveScene()
         currentScene.gameObjects.push(gameObject)

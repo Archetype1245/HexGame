@@ -38,22 +38,23 @@ class HexSpawnController extends Component {
         // TODO: Add star-hex match detection
         let invalidColors = []
 
-        const d1 = HexMath.Direction.South
-        const d2 = HexMath.Direction.Southwest
-        const d3 = HexMath.Direction.Northwest
+        // const d1 = HexMath.Direction.South
+        // const d2 = HexMath.Direction.Southwest
+        // const d3 = HexMath.Direction.Northwest
 
-        const n1Axial = HexMath.getNeighbor(axial, d1).toString()
-        const n2Axial = HexMath.getNeighbor(axial, d2).toString()
-        const n3Axial = HexMath.getNeighbor(axial, d3).toString()
+        const dirs = [HexMath.Direction.South, HexMath.Direction.Southwest, HexMath.Direction.Northwest]
 
-        let n1 = grid.axialInfo.get(n1Axial)?.hex ?? null
-        let n2 = grid.axialInfo.get(n2Axial)?.hex ?? null
-        let n3 = grid.axialInfo.get(n3Axial)?.hex ?? null
+        for (let i = 0; i < dirs.length - 1; i++) {
+            const n1Axial = HexMath.getNeighbor(axial, dirs[i]).toString()
+            const n2Axial = HexMath.getNeighbor(axial, dirs[i + 1]).toString()
 
-        if (n1 && n2 && n1.color === n2.color) {
-            invalidColors.push(n1.color)
-        } else if (n2 && n3 && n2.color === n3.color) {
-            invalidColors.push(n2.color)
+            const n1 = grid.axialInfo.get(n1Axial)?.hex ?? null
+            const n2 = grid.axialInfo.get(n2Axial)?.hex ?? null
+
+            if (n1 && n2 && n1.color === n2.color) {
+                invalidColors.push(n1.color)
+                break
+            }
         }
 
         return Object.values(HexGridConfig.hexColors).filter(c => (!invalidColors.includes(c)))
