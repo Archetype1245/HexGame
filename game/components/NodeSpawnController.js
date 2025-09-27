@@ -13,7 +13,7 @@ class NodeSpawnController extends Component {
 
     spawnNode(position) {
         const nodeObject = new NodeGameObject()
-        const node = nodeObject.getComponent("NodeController")
+        const node = nodeObject.getComponent(NodeController)
 
         Scene.instantiate(nodeObject, { position: position, layer: 1 })
 

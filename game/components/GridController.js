@@ -3,25 +3,30 @@ class GridController extends Component {
         this.totalColumns = HexGridConfig.grid.columns
         this.totalRows = HexGridConfig.grid.rows
 
-        this.layout = this.gameObject.getComponent("LayoutController")
-        this.hexSpawner = this.gameObject.getComponent("HexSpawnController")
-        this.nodeSpawner = this.gameObject.getComponent("NodeSpawnController")
+        this.layout = this.gameObject.getComponent(LayoutController)
+        this.hexSpawner = this.gameObject.getComponent(HexSpawnController)
+        this.nodeSpawner = this.gameObject.getComponent(NodeSpawnController)
 
         this.axialInfo = new Map()
         this.nodeInfo = new Map()
+        this.selectedNode = null
+
         this.generateGrid()
         this.generateNodes()
 
+        // ----------------------------------------------------------
         // Testing
         // Ideally, on some input, detect the Node clicked (or whatever) and set its polygon.hidden to false
+
         // const key = "(5,0),(6,-1),(6,0)"
-        const key = "(4,1),(4,2),(5,1)"
-        const node = this.nodeInfo.get(key)
-        node.gameObject.getComponent("Polygon").hidden = false
+        // const key = "(4,1),(4,2),(5,1)"
+        // const node = this.nodeInfo.get(key)
+        // node.toggleOutlineVisibility(true)
+        // ----------------------------------------------------------
     }
 
     update() {
-
+        this.updateCurrentNode()
     }
 
     draw() {
@@ -37,7 +42,7 @@ class GridController extends Component {
                 const hex = this.hexSpawner.spawnHex(pos, axial, /*initial=*/true)
 
                 // This is here simply to ensure the spawner doesn't need to know more than it has to (layout)
-                hex.gameObject.getComponent("Polygon").points = this.layout.hexVertexOffsets
+                hex.gameObject.getComponent(Polygon).points = this.layout.hexVertexOffsets
 
                 this.axialInfo.set(HexCoordinates.getKeyFrom(axial), {
                     hex: hex
@@ -58,8 +63,8 @@ class GridController extends Component {
             for (let r = row; r < row + this.totalRows - 1; r++) {
                 const hexCoords = new HexCoordinates(q, r)
                 for (const vertex of validVertices) {
-                    const n1Coords = HexMath.getNeighbor(hexCoords, vertex)
-                    const n2Coords = HexMath.getNeighbor(hexCoords, HexMath.mod(vertex - 1, 6))
+                    const n1Coords = HexMath.getNeighbor(hexCoords, HexMath.mod(vertex - 1, 6))
+                    const n2Coords = HexMath.getNeighbor(hexCoords, vertex)
 
                     const nodePos = HexMath.getCentroid(this.layout.getHexCenter(hexCoords),
                         this.layout.getHexCenter(n1Coords),
@@ -70,13 +75,21 @@ class GridController extends Component {
                     node.neighbors.sort(HexCoordinates.compareCoords)
                     this.nodeInfo.set(HexCoordinates.getKeyFrom(node.neighbors), node)
 
-                    this.calcOutlineOffsets(node, vertex)
+                    // Assign the node the appropriate outline configuration
+                    this.setNodeOutline(node, vertex)
+                    // TODO: Perimeter node calculation (for targeted localized match checking
+                    // console.log(node.perimeterNodes)
+
+                    // Tie node to the corresponding vertex position of each adjacent cell
+                    // Used for quick lookups when determining which outline to show
+                    const cells = [hexCoords, n1Coords, n2Coords]
+                    this.storeNodeByVertex(node, cells, vertex)
                 }
             }
         }
     }
 
-    calcOutlineOffsets(node, vertexIndex) {
+    setNodeOutline(node, vertexIndex) {
         const outlineVariation = vertexIndex % 2
         node.gameObject.addComponent(new Polygon(), {
             points: this.layout.nodeOutlineOffsets[outlineVariation],
@@ -85,5 +98,48 @@ class GridController extends Component {
             fill: false,
             hidden: true
         })
+    }
+
+    storeNodeByVertex(node, cells, vertex) {
+        for (let i = 0; i < cells.length; i++) {
+            // For the cell we start with, the node is placed at exactly the vertex we initially looked at.
+            // For each of the neighbors, taking this vertex and incrementing by 2 (per neighbor) provides us
+            // with precisely the vertex for that cell that overlaps with the vertex of our starting cell
+            const offset = 2 * i
+            const idx = (vertex + offset) % 6
+
+            const entry = this.axialInfo.get(cells[i].toKey())
+            if (entry) {
+                // Initialize empty array if nodesByVertex hasn't been added to this key yet
+                if (!entry.nodesByVertex) entry.nodesByVertex = []
+                entry.nodesByVertex[idx] = node
+            }
+        }
+    }
+
+    updateCurrentNode() {
+        const px = Input.mouseX
+        const py = Input.mouseY
+        const cell = this.layout.worldToAxial(px, py)
+        let cellInfo = this.axialInfo.get(cell.toKey())
+        const previousNode = this.selectedNode
+
+        if (cellInfo) {
+            const c = this.layout.getHexCenter(cell)
+
+            const dx = px - c.x
+            const dy = py - c.y
+
+            let a = Math.atan2(dy, dx)
+            a = HexMath.mod(a, 2 * Math.PI)
+
+            const idx = Math.floor((a + Math.PI / 6) / (Math.PI / 3)) % 6
+            this.selectedNode = cellInfo.nodesByVertex[idx] ?? null
+        } else {
+            this.selectedNode = null
+        }
+
+        if (previousNode) previousNode.toggleOutlineVisibility(false)
+        if (this.selectedNode) this.selectedNode.toggleOutlineVisibility(true)
     }
 }

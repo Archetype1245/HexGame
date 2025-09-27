@@ -9,6 +9,8 @@ class LayoutController extends Component {
         this.scale = 1
         this.offsetX = 0
         this.offsetY = 0
+        this.startX = 0
+        this.startY = 0
 
         this.radius = 0
         this.hexW = 0
@@ -72,6 +74,9 @@ class LayoutController extends Component {
         this.offsetX = Math.floor((Engine.canvas.width - gridW) / 2)
         this.offsetY = Math.floor((Engine.canvas.height - gridH) / 2) - this.hexH * 0.5
 
+        this.startX = this.offsetX + this.radius
+        this.startY = Engine.canvas.height - this.offsetY - (this.hexH / 2)
+
         this.lastW = Engine.canvas.width
         this.lastH = Engine.canvas.height
     }
@@ -79,11 +84,34 @@ class LayoutController extends Component {
     getHexCenter(axial) {
         const q = axial.q
         const r = axial.r
-        const row = HexMath.rToOffset(q, r)
-        const cx = this.offsetX + (this.hexW / 2) + q * this.hSpacing
-        const cy = Engine.canvas.height - this.offsetY - (this.hexH / 2) - row * this.vSpacing + (q % 2 ? this.vSpacing * 0.5 : 0)
 
+        const cx = this.startX + q * this.hSpacing
+        const cy = this.startY - ((q * this.hexH / 2) + (r * this.hexH))
         return new Vector2(cx, cy)
+    }
+
+    worldToAxial(x, y) {
+        // Full axial coords are (q,r,s), where s is derived from q and r
+        // Estimate these coords using the given screen position
+        const qEst = (x - this.startX) / this.hSpacing                          
+        const rEst = ((this.startY - y) / this.hexH) - qEst/2
+        const sEst = -qEst - rEst
+
+        // Round and calculate the difference between actual and integer (rounded) values
+        let qRounded = Math.round(qEst)
+        let rRounded = Math.round(rEst)
+        let sRounded = Math.round(sEst)
+
+        const dq = Math.abs(qRounded - qEst)
+        const dr = Math.abs(rRounded - rEst)
+        const ds = Math.abs(sRounded - sEst)
+
+        // Find the largest difference, and discard it - calculate this value from the other (more accurate) ones
+        if      (dq > dr && dq > ds) qRounded = -rRounded - sRounded
+        else if (dr > ds)            rRounded = -qRounded - sRounded
+        else                         sRounded = -qRounded - rRounded
+
+        return new HexCoordinates(qRounded, rRounded)
     }
 
     calcHexVertexOffsets() {
@@ -119,7 +147,7 @@ class LayoutController extends Component {
 
     // TODO: Shouldn't need after camera code is added
     updateHexCenters() {
-        const grid = this.gameObject.getComponent("GridController")
+        const grid = this.gameObject.getComponent(GridController)
 
         for (let q = 0; q < this.totalColumns; q++) {
             let row = HexMath.rMinForGivenQ(q)

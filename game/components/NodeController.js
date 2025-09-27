@@ -1,6 +1,7 @@
 class NodeController extends Component {
-    neighbors = []
-    perimeterNodes = []
+    neighbors = []          // Axial coordinates corresponding to the neighbor cells
+    perimeterNodes = []     // NYI - Will use for targeted match detection
+
 
     start() {
 
@@ -12,5 +13,9 @@ class NodeController extends Component {
 
     draw() {
 
+    }
+
+    toggleOutlineVisibility(on) {
+        this.gameObject.getComponent(Polygon).hidden = !on
     }
 }

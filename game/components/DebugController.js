@@ -32,7 +32,7 @@ class DebugController extends Component {
 
         this.matchTestRunning = true
         const scene = SceneManager.getActiveScene()
-        const grid = scene.gameObjects.find(go => go.name === "HexGridGameObject").getComponent("GridController")
+        const grid = scene.gameObjects.find(go => go.name === "HexGridGameObject").getComponent(GridController)
 
         for (const [key, node] of grid.nodeInfo) {
             let neighborColors = []

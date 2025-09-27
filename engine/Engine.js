@@ -5,6 +5,7 @@ class Engine {
         addEventListener("resize", Engine.resizeCanvas)  // Just to not recalc every draw call
         addEventListener("keydown", Input.keyDown)
         addEventListener("keyup", Input.keyUp)
+        addEventListener("mousemove", Input.mouseMove)
 
         Engine.resizeCanvas()
         Engine.currentScene.start()
@@ -19,6 +20,7 @@ class Engine {
 
     static update() {
         Engine.currentScene.update()
+        Input.finishFrame()
     }
 
     static draw() {

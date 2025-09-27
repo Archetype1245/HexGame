@@ -14,6 +14,10 @@ class HexCoordinates {
         return `(${this.q},${this.r})`
     }
 
+    toKey() {
+        return `(${this.q},${this.r})`
+    }
+
     static compareCoords(c1, c2) {
         return c1.q - c2.q || c1.r - c2.r
     }

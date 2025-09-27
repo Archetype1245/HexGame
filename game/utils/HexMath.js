@@ -17,6 +17,7 @@ class HexMath {
         Northeast: 5
     }
 
+    // Now unused - keeping for now to see if it ever becomes useful again
     static rMinForGivenQ(q) {
         return -((q + (q & 1)) / 2) || 0
     }
@@ -42,7 +43,6 @@ class HexMath {
         return h1.plus(h2).plus(h3).times(1 / 3)
     }
 
-    // I guess the `%` operator in JS is remainder, not modulus. Helper to calc mod.
     static mod(n, m) {
         return ((n % m) + m) % m
     }

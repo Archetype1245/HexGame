@@ -32,8 +32,8 @@ class GameObject {
         return this
     }
 
-    getComponent(name) {
-        return this.components.find(component => component.name === name)
+    getComponent(type) {
+        return this.components.find(c => c instanceof type)
     }
 
     get transform() {
