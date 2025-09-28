@@ -49,11 +49,6 @@ class GridController extends Component {
                 })
             }
         }
-
-        // DEBUG VISUAL ONLY
-        let overlay = new GameObject("DebugVisualGameObject")
-        overlay.addComponent(new DebugController(), { model: this })
-        Scene.instantiate(overlay, { layer: 100 })
     }
 
     generateNodes() {

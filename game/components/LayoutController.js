@@ -106,10 +106,10 @@ class LayoutController extends Component {
         const dr = Math.abs(rRounded - rEst)
         const ds = Math.abs(sRounded - sEst)
 
-        // Find the largest difference, and discard it - calculate this value from the other (more accurate) ones
-        if      (dq > dr && dq > ds) qRounded = -rRounded - sRounded
-        else if (dr > ds)            rRounded = -qRounded - sRounded
-        else                         sRounded = -qRounded - rRounded
+        // Find the largest difference, and discard it - calculate this value from the others instead
+        if (dq > dr && dq > ds) qRounded = -rRounded - sRounded
+        else if (dr > ds)       rRounded = -qRounded - sRounded
+        else                    sRounded = -qRounded - rRounded  // currently not using this case
 
         return new HexCoordinates(qRounded, rRounded)
     }
@@ -123,11 +123,6 @@ class LayoutController extends Component {
     }
 
     calcNodeOutlineVertices() {
-        /*
-        0,  120, 240 at r
-        60, 180, 300 at 2*r = hexW
-        30, 90, 150, 210, 270, 330 = c
-        */
         let angle = Math.PI / 3
         let r = this.radius
         const c = Math.sqrt(2 * r**2 * (1 - Math.cos(2*angle)))

@@ -2,11 +2,9 @@ class Engine {
     static start() {
         Engine.canvas = document.querySelector("#canv")
         Engine.ctx = Engine.canvas.getContext("2d")
-        addEventListener("resize", Engine.resizeCanvas)  // Just to not recalc every draw call
-        addEventListener("keydown", Input.keyDown)
-        addEventListener("keyup", Input.keyUp)
-        addEventListener("mousemove", Input.mouseMove)
+        Input.attach(Engine.canvas)
 
+        window.addEventListener("resize", Engine.resizeCanvas)
         Engine.resizeCanvas()
         Engine.currentScene.start()
         Engine.gameLoop()
