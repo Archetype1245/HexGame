@@ -32,7 +32,7 @@ class HexSpawnController extends Component {
     getValidColors(axial) {
         if (!axial) return "magenta"  // Shouldn't happen
 
-        const grid = this.gameObject.getComponent(GridController)
+        const data = SceneManager.getActiveScene().gridData
         // Need to check South+Southwest and Southwest+Northwest wedges (colors of the hexes there)
         // And remove colors from the pool if it would create a match in the initial grid generation
         // TODO: Add star-hex match detection
@@ -48,8 +48,8 @@ class HexSpawnController extends Component {
             const n1Axial = HexMath.getNeighbor(axial, dirs[i]).toString()
             const n2Axial = HexMath.getNeighbor(axial, dirs[i + 1]).toString()
 
-            const n1 = grid.axialInfo.get(n1Axial)?.hex ?? null
-            const n2 = grid.axialInfo.get(n2Axial)?.hex ?? null
+            const n1 = data.axialInfo.get(n1Axial)?.hex ?? null
+            const n2 = data.axialInfo.get(n2Axial)?.hex ?? null
 
             if (n1 && n2 && n1.color === n2.color) {
                 invalidColors.push(n1.color)

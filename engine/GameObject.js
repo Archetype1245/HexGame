@@ -1,7 +1,9 @@
 class GameObject {
     name = ""
     components = []
+    hasStarted = false
     markForDeleted = false
+    
     constructor(name) {
         this.name = name
         this.addComponent(new Transform())

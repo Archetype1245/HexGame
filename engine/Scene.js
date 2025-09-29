@@ -13,6 +13,10 @@ class Scene {
 
     update() {
         for (const gameObject of this.gameObjects) {
+            if (!gameObject.hasStarted) {
+                gameObject.start()
+                gameObject.hasStarted = true
+            }
             gameObject.update()
         }
 
@@ -32,10 +36,8 @@ class Scene {
         let layerGroup = this.layerGroups.get(layer)
         if (!layerGroup) {
             layerGroup = new Set()
-
             this.layerGroups.set(layer, layerGroup)
-            // Insert layer value at the appropriate index
-            // Could binary search, but don't anticipate having a huge layer count
+
             const idx = this.sortedLayers.findIndex(i => i > layer)
             if (idx === -1) {
                 this.sortedLayers.push(layer)
@@ -47,18 +49,16 @@ class Scene {
         layerGroup.add(gameObject)
     }
 
-    static instantiate(gameObject, { position = null, scene = null, layer = 0 }) {
-        // Assign current scene to the given argument, otherwise grab it
+    static instantiate(gameObject, { position = null, scene = null, layer = 0, forceStart = false}) {
         const currentScene = scene ?? SceneManager.getActiveScene()
         currentScene.gameObjects.push(gameObject)
 
-        // Assign layer to the given argument, otherwise set to 0-default
         gameObject.layer = layer ?? 0
         currentScene.addToLayer(layer, gameObject)
 
         if (position) gameObject.transform.position = position
-        // Start the gameobject if the scene is already started, otherwise let it automatically start when the scene does
-        if (currentScene.started) gameObject.start()
+        // Bit of a pseudo-Awake()
+        if (forceStart) gameObject.start(); gameObject.hasStarted = true
         return gameObject
     }
 }

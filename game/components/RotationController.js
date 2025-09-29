@@ -1,6 +1,6 @@
 class RotationController extends Component {
     start() {
-        
+        this.data = SceneManager.getActiveScene().gridData
     }
 
     update() {
@@ -9,5 +9,10 @@ class RotationController extends Component {
 
     draw() {
 
+    }
+
+    rotateAroundNode(node, ccw) {
+        if (ccw) console.log(`Rotate ccw`)
+        if (!ccw) console.log(`Rotate cw`)
     }
 }

@@ -6,27 +6,30 @@ class GridController extends Component {
         this.layout = this.gameObject.getComponent(LayoutController)
         this.hexSpawner = this.gameObject.getComponent(HexSpawnController)
         this.nodeSpawner = this.gameObject.getComponent(NodeSpawnController)
+        this.rotationManager = this.gameObject.getComponent(RotationController)
+        this.data = SceneManager.getActiveScene().gridData
 
-        this.axialInfo = new Map()
-        this.nodeInfo = new Map()
         this.selectedNode = null
 
         this.generateGrid()
         this.generateNodes()
-
-        // ----------------------------------------------------------
-        // Testing
-        // Ideally, on some input, detect the Node clicked (or whatever) and set its polygon.hidden to false
-
-        // const key = "(5,0),(6,-1),(6,0)"
-        // const key = "(4,1),(4,2),(5,1)"
-        // const node = this.nodeInfo.get(key)
-        // node.toggleOutlineVisibility(true)
-        // ----------------------------------------------------------
     }
 
     update() {
         this.updateCurrentNode()
+
+        if (Input.mouseJustReleased) {
+            if (Input.consumeClick("left")) {
+                if (this.selectedNode instanceof NodeController)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*ccw=*/true)
+                // TODO: Add ccw rotation call for star hexes
+            }
+            if (Input.consumeClick("right")) {
+                if (this.selectedNode instanceof NodeController)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*ccw=*/false)
+                // TODO: Add cw rotation call for star hexes
+            }
+        }
     }
 
     draw() {
@@ -43,10 +46,7 @@ class GridController extends Component {
 
                 // This is here simply to ensure the spawner doesn't need to know more than it has to (layout)
                 hex.gameObject.getComponent(Polygon).points = this.layout.hexVertexOffsets
-
-                this.axialInfo.set(HexCoordinates.getKeyFrom(axial), {
-                    hex: hex
-                })
+                this.data.addHex(HexCoordinates.getKeyFrom(axial), hex)
             }
         }
     }
@@ -68,7 +68,8 @@ class GridController extends Component {
                     const node = this.nodeSpawner.spawnNode(nodePos)
                     node.neighbors = [hexCoords, n1Coords, n2Coords]
                     node.neighbors.sort(HexCoordinates.compareCoords)
-                    this.nodeInfo.set(HexCoordinates.getKeyFrom(node.neighbors), node)
+
+                    this.data.addNode(HexCoordinates.getKeyFrom(node.neighbors), node)
 
                     // Assign the node the appropriate outline configuration
                     this.setNodeOutline(node, vertex)
@@ -103,12 +104,7 @@ class GridController extends Component {
             const offset = 2 * i
             const idx = (vertex + offset) % 6
 
-            const entry = this.axialInfo.get(cells[i].toKey())
-            if (entry) {
-                // Initialize empty array if nodesByVertex hasn't been added to this key yet
-                if (!entry.nodesByVertex) entry.nodesByVertex = []
-                entry.nodesByVertex[idx] = node
-            }
+            this.data.addNodeByVertex(cells[i].toKey(), idx, node)
         }
     }
 
@@ -116,7 +112,7 @@ class GridController extends Component {
         const px = Input.mouseX
         const py = Input.mouseY
         const cell = this.layout.worldToAxial(px, py)
-        let cellInfo = this.axialInfo.get(cell.toKey())
+        let cellInfo = this.data.axialInfo.get(cell.toKey())
         const previousNode = this.selectedNode
 
         if (cellInfo) {
