@@ -16,7 +16,7 @@ class GridData {
 
     deleteHex(key) {
         const entry = this.axialInfo.get(key)
-        if (entry) delete entry.hex
+        if (entry) entry.hex = null
     }
 
     getHex(key) {

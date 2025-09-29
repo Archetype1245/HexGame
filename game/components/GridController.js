@@ -21,12 +21,12 @@ class GridController extends Component {
         if (Input.mouseJustReleased) {
             if (Input.consumeClick("left")) {
                 if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*ccw=*/true)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
                 // TODO: Add ccw rotation call for star hexes
             }
             if (Input.consumeClick("right")) {
                 if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*ccw=*/false)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
                 // TODO: Add cw rotation call for star hexes
             }
         }

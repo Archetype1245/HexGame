@@ -17,7 +17,7 @@ class HexGridConfig {
     static hexColors = {
         red: "#a70000ff",
         orange: "#ff6a00ff",
-        yellow: "#0092d1ff",
+        lightblue: "#0092d1ff",
         green: "#017b09ff",
         blue: "#030dc8ff",
         purple: "#9201e0ff"

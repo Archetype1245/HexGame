@@ -1,6 +1,7 @@
 class DebugController extends Component {
     start() {
         this.matchTestRunning = false
+        this.totalRuns = 0
         this.remainingRuns = 0
         this.scene = SceneManager.getActiveScene()
         this.data = this.scene.gridData
@@ -14,10 +15,12 @@ class DebugController extends Component {
             }
         }
         if (this.remainingRuns > 0) {
+                this.totalRuns++
                 this.testGridMatchPrevention()
                 this.remainingRuns--
         } else {
                 this.matchTestRunning = false
+                this.totalRuns = 0
         }
     }
 
@@ -46,7 +49,8 @@ class DebugController extends Component {
             }
             if (neighborColors[0] === neighborColors[1] &&
                 neighborColors[1] === neighborColors[2]) {
-                console.log(`Match detected in run ${i} at ${node.neighbors}.`)
+                console.log(`Match detected in run ${this.totalRuns} at ${node.neighbors}.`)
+                this.remainingRuns = 0
                 return
             }
         }

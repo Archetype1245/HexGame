@@ -7,30 +7,28 @@ class RotationController extends Component {
         // Nothing?
     }
 
-    rotateAroundNode(node, ccw) {
-        const neighbors = node.neighbors
-        const rotatedNeighbors = []
-        const shift = ccw ? 1 : -1 + neighbors.length
-        // Get rotated neighbor positions
-        for (let i = 0; i < neighbors.length; i++) {
-            rotatedNeighbors[i] = neighbors[(i + shift) % neighbors.length]
+    rotateAroundNode(node, cw) {
+        const axials = node.neighbors
+        const startPositions = []
+        const hexes = []
+
+        for (let i = 0; i < axials.length; i++) {
+            const key = axials[i].toKey()
+            const hex = this.data.getHex(key)
+            const pos = hex.transform.position
+
+            hexes.push(hex)
+            startPositions.push(pos.clone())
+            this.data.deleteHex(key)  // Shouldn't need this, actually. Keeping for now, though.
         }
 
-        // Update which hex is stored in which cell (this.data.axialInfo)
-        // Get hex controllers from their original positions/cells
-        const cellContentsOrig = []
-        for (const cell of neighbors) {
-            const hex = this.data.getHex(cell.toKey())
-            cellContentsOrig.push(hex)
-        }
+        const shift = cw ? 1 : axials.length - 1
+        for (let i = 0; i < axials.length; i++) {
+            const newIdx = (i + shift) % axials.length
+            hexes[i].transform.position = startPositions[newIdx]
 
-        node.neighbors = rotatedNeighbors
-        
-        for (let i = 0; i < neighbors.length; i++) {
-            const key = rotatedNeighbors[i].toKey()
-            const hex = cellContentsOrig[i]
-            this.data.addHex(key, hex)
+            const newAxial = axials[newIdx]
+            this.data.addHex(newAxial.toKey(), hexes[i])
         }
-
     }
 }
