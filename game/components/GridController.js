@@ -62,14 +62,15 @@ class GridController extends Component {
                     const n2Coords = HexMath.getNeighbor(hexCoords, vertex)
 
                     const nodePos = HexMath.getCentroid(this.layout.getHexCenter(hexCoords),
-                        this.layout.getHexCenter(n1Coords),
-                        this.layout.getHexCenter(n2Coords))
+                                                        this.layout.getHexCenter(n1Coords),
+                                                        this.layout.getHexCenter(n2Coords))
 
                     const node = this.nodeSpawner.spawnNode(nodePos)
                     node.neighbors = [hexCoords, n1Coords, n2Coords]
-                    node.neighbors.sort(HexCoordinates.compareCoords)
 
-                    this.data.addNode(HexCoordinates.getKeyFrom(node.neighbors), node)
+                    const sortedNeighbors = [...node.neighbors].sort(HexCoordinates.compareCoords)
+
+                    this.data.addNode(HexCoordinates.getKeyFrom(sortedNeighbors), node)
 
                     // Assign the node the appropriate outline configuration
                     this.setNodeOutline(node, vertex)
