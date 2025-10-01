@@ -27,7 +27,7 @@ class RotationController extends Component {
         }
 
         // Animation
-        await this.animateRotation(startPositions, shift, hexes, node)
+        await this.animateRotation(hexes, node, cw)
 
         // Update values
         for (let i = 0; i < axials.length; i++) {
@@ -41,22 +41,21 @@ class RotationController extends Component {
         this.game.set(GameState.Phase.idle)
     }
 
-    async animateRotation(startPositions, shift, hexes, node) {
-        const center = node.transform.position
+    async animateRotation(hexes, node, cw) {
+        for (const hex of hexes) {
+            hex.transform.setParent(node.transform)
+        }
+        const totalAngle = (cw ? 1 : -1) * (2 * Math.PI / 3)        // +- 120 degrees, depending on rotation direction
 
-        return Engine.animation.add(new Transition({
+        await Engine.animation.add(new Transition({
+            from: node.transform.rotation,
+            to: node.transform.rotation + totalAngle,
             duration: HexGridConfig.animations.rotation,
-            onUpdate: (_, t) => {
-                for (let i = 0; i < hexes.length; i++) {
-                    const start = startPositions[i]
-                    const end = startPositions[(i + shift) % hexes.length]
-                    
-                    const newX = start.x + (end.x - start.x) * t
-                    const newY = start.y + (end.y - start.y) * t
-
-                    hexes[i].transform.position = new Vector2(newX, newY)
-                }
-            }
+            onUpdate: (angle) => node.transform.rotation = angle
         }))
+
+        for (const hex of hexes) {
+            hex.transform.setParent(null)
+        }
     }
 }

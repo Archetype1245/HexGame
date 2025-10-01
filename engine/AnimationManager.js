@@ -21,7 +21,7 @@ class Transition {
         this.from = from
         this.to = to
         this.duration = duration
-        this.lerp = lerp
+        this.lerp = lerp               // default to a basic straight-line "a-to-b" animation path
         this.onUpdate = onUpdate
         this.onComplete = onComplete
         this.elapsed = 0
