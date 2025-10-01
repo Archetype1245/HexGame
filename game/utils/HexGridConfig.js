@@ -28,9 +28,11 @@ class HexGridConfig {
         star: "star",
         bomb: "bomb"
     }
-    static gravity = {
-        fallSpeed: 80,
-        fallDelay: 0.05
+    static animations = {
+        // Times in ms
+        fallSpeed: 100,
+        fallDelay: 15,
+        rotation: 200
     }
 }
 

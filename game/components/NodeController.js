@@ -15,7 +15,8 @@ class NodeController extends Component {
 
     }
 
-    toggleOutlineVisibility(on) {
+    toggleVisibility(on) {
         this.gameObject.getComponent(Polygon).hidden = !on
+        this.gameObject.getComponent(Circle).hidden = !on
     }
 }

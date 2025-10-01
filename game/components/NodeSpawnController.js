@@ -19,7 +19,8 @@ class NodeSpawnController extends Component {
 
         node.gameObject.addComponent(new Circle(), {
             r: HexGridConfig.visuals.nodeRadius,
-            fillStyle: HexGridConfig.visuals.nodeColor
+            fillStyle: HexGridConfig.visuals.nodeColor,
+            hidden: true
         })
         return node
     }

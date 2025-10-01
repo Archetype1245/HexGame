@@ -142,13 +142,13 @@ class LayoutController extends Component {
 
     // TODO: Shouldn't need after camera code is added
     updateHexCenters() {
-        const grid = this.gameObject.getComponent(GridController)
+        const data = SceneManager.getActiveScene().gridData
 
         for (let q = 0; q < this.totalColumns; q++) {
             let row = HexMath.rMinForGivenQ(q)
             for (let r = row; r < row + this.totalRows; r++) {
                 const key = HexCoordinates.getKeyFrom(new HexCoordinates(q, r))
-                const cell = grid.axialInfo.get(key)
+                const cell = data.axialInfo.get(key)
                 const axial = new HexCoordinates(q, r)
                 cell.hex.transform.position = this.getHexCenter(axial)
             }

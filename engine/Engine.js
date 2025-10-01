@@ -7,10 +7,13 @@ class Engine {
         window.addEventListener("resize", Engine.resizeCanvas)
         Engine.resizeCanvas()
         Engine.currentScene.start()
+        Engine.animation = new AnimationManager()
         Engine.gameLoop()
     }
 
+
     static gameLoop() {
+        Time.update()
         Engine.update()
         Engine.draw()
         requestAnimationFrame(Engine.gameLoop)
@@ -18,6 +21,7 @@ class Engine {
 
     static update() {
         Engine.currentScene.update()
+        Engine.animation.update(Time.deltaTime)
         Input.finishFrame()
     }
 

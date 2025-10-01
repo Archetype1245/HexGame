@@ -1,5 +1,6 @@
 class GridController extends Component {
     start() {
+        this.scene = SceneManager.getActiveScene()
         this.totalColumns = HexGridConfig.grid.columns
         this.totalRows = HexGridConfig.grid.rows
 
@@ -7,7 +8,8 @@ class GridController extends Component {
         this.hexSpawner = this.gameObject.getComponent(HexSpawnController)
         this.nodeSpawner = this.gameObject.getComponent(NodeSpawnController)
         this.rotationManager = this.gameObject.getComponent(RotationController)
-        this.data = SceneManager.getActiveScene().gridData
+        this.data = this.scene.gridData
+        this.game = this.scene.gameState
 
         this.selectedNode = null
 
@@ -16,18 +18,20 @@ class GridController extends Component {
     }
 
     update() {
-        this.updateCurrentNode()
+        if (this.game.canInteract) {
+            this.updateCurrentNode()
 
-        if (Input.mouseJustReleased) {
-            if (Input.consumeClick("left")) {
-                if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
-                // TODO: Add ccw rotation call for star hexes
-            }
-            if (Input.consumeClick("right")) {
-                if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
-                // TODO: Add cw rotation call for star hexes
+            if (Input.mouseJustReleased) {
+                if (Input.consumeClick("left")) {
+                    if (this.selectedNode instanceof NodeController)
+                        this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
+                    // TODO: Add ccw rotation call for star hexes
+                }
+                if (Input.consumeClick("right")) {
+                    if (this.selectedNode instanceof NodeController)
+                        this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
+                    // TODO: Add cw rotation call for star hexes
+                }
             }
         }
     }
@@ -131,7 +135,7 @@ class GridController extends Component {
             this.selectedNode = null
         }
 
-        if (previousNode) previousNode.toggleOutlineVisibility(false)
-        if (this.selectedNode) this.selectedNode.toggleOutlineVisibility(true)
+        if (previousNode) previousNode.toggleVisibility(false)
+        if (this.selectedNode) this.selectedNode.toggleVisibility(true)
     }
 }

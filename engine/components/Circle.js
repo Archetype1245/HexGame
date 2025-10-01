@@ -5,8 +5,10 @@ class Circle extends Component {
     fillStyle = "magenta"
     strokeStyle = "black"
     lineWidth = 1
+    hidden = false
     
     draw(ctx) {
+        if (this.hidden) return
         const pos = this.transform.position
         const scale = this.transform.scale
 
