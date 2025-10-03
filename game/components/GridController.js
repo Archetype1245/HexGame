@@ -15,23 +15,22 @@ class GridController extends Component {
 
         this.generateGrid()
         this.generateNodes()
+        this.setPerimetersForNodes()
     }
 
     update() {
         if (this.game.canInteract) {
             this.updateCurrentNode()
 
-            if (Input.mouseJustReleased) {
-                if (Input.consumeClick("left")) {
-                    if (this.selectedNode instanceof NodeController)
-                        this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
-                    // TODO: Add ccw rotation call for star hexes
-                }
-                if (Input.consumeClick("right")) {
-                    if (this.selectedNode instanceof NodeController)
-                        this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
-                    // TODO: Add cw rotation call for star hexes
-                }
+            if (Input.mouseClicks.left) {
+                if (this.selectedNode instanceof NodeController)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
+                // TODO: Add ccw rotation call for star hexes
+            }
+            if (Input.mouseClicks.right) {
+                if (this.selectedNode instanceof NodeController)
+                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
+                // TODO: Add cw rotation call for star hexes
             }
         }
     }
@@ -66,15 +65,16 @@ class GridController extends Component {
                     const n2Coords = HexMath.getNeighbor(hexCoords, vertex)
 
                     const nodePos = HexMath.getCentroid(this.layout.getHexCenter(hexCoords),
-                                                        this.layout.getHexCenter(n1Coords),
-                                                        this.layout.getHexCenter(n2Coords))
+                        this.layout.getHexCenter(n1Coords),
+                        this.layout.getHexCenter(n2Coords))
 
                     const node = this.nodeSpawner.spawnNode(nodePos)
                     node.neighbors = [hexCoords, n1Coords, n2Coords]
 
                     const sortedNeighbors = [...node.neighbors].sort(HexCoordinates.compareCoords)
 
-                    this.data.addNode(HexCoordinates.getKeyFrom(sortedNeighbors), node)
+                    const nodeKey = HexCoordinates.getKeyFrom(sortedNeighbors)
+                    this.data.addNode(nodeKey, node)
 
                     // Assign the node the appropriate outline configuration
                     this.setNodeOutline(node, vertex)
@@ -110,6 +110,29 @@ class GridController extends Component {
             const idx = (vertex + offset) % 6
 
             this.data.addNodeByVertex(cells[i].toKey(), idx, node)
+        }
+    }
+
+    setPerimetersForNodes() {
+        for (const node of this.data.nodeInfo.values()) {
+            let pNodes = new Set()
+            let pCells = new Set()
+            let stringNeighbors = new Set()
+
+            for (const cell of node.neighbors) {
+                const nodes = this.data.axialInfo.get(cell.toKey()).nodesByVertex
+                nodes.forEach(n => pNodes.add(n))
+
+                // Grab the cell-neighbors (only if they have hex GOs)
+                const neighbors = HexMath.getAllNeighbors(cell).filter(c => this.data.getHex(c.toKey()))
+                neighbors.forEach(c => pCells.add(c.toKey()))
+                stringNeighbors.add(cell.toString())
+            }
+            pNodes.delete(node)                                        // Remove current node from perimeter list
+            node.perimeterNodes = [...pNodes]
+
+            pCells = [...pCells].filter(c => !stringNeighbors.has(c))  // Remove immediate neighbors from perimeter
+            node.perimeterCells = pCells.map(c => HexCoordinates.fromString(c))
         }
     }
 

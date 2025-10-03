@@ -20,9 +20,9 @@ class Engine {
     }
 
     static update() {
+        Input.beginFrame()
         Engine.currentScene.update()
         Engine.animation.update(Time.deltaTime)
-        Input.finishFrame()
     }
 
     static draw() {

@@ -3,6 +3,7 @@ class RotationController extends Component {
         this.scene = SceneManager.getActiveScene()
         this.data = this.scene.gridData
         this.game = this.scene.gameState
+        this.matcher = this.gameObject.getComponent(MatchController)
     }
 
     update() {
@@ -37,6 +38,8 @@ class RotationController extends Component {
             const newAxial = axials[newIdx]
             this.data.addHex(newAxial.toKey(), hexes[i])
         }
+
+        this.matcher.checkForMatches(node)
 
         this.game.set(GameState.Phase.idle)
     }

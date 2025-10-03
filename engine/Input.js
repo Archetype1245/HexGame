@@ -5,10 +5,10 @@ class Input {
     static lastMouseX = 0
     static lastMouseY = 0
     static mouseIsDown = false
-    static mouseJustReleased = false
     static keysDown = new Set()
     static prevKeys = new Set()
-    static clickType = { left: false, right: false }
+    static mouseClicks = { left: false, right: false }
+    static queuedClicks = { left: false, right: false }
 
     static attach(canvas) {
         Input.canvas = canvas
@@ -22,11 +22,14 @@ class Input {
         canvas.addEventListener("contextmenu", e => e.preventDefault())
     }
 
-    static finishFrame() {
+    static beginFrame() {
         Input.prevKeys = new Set(Input.keysDown)
         Input.lastMouseX = Input.mouseX
         Input.lastMouseY = Input.mouseY
-        Input.mouseJustReleased = false
+
+        Input.mouseClicks.left = Input.queuedClicks.left
+        Input.mouseClicks.right = Input.queuedClicks.right
+        Input.queuedClicks = { left: false, right: false }
     }
 
     static keyDown(e) {
@@ -58,19 +61,20 @@ class Input {
 
     static mouseDown(e) {
         Input.mouseMove(e)
-        if (e.button === 0) Input.mouseIsDown = true
+        if (e.button === 0) {
+            Input.mouseIsDown = true
+        }
     }
 
     static mouseUp(e) {
         Input.mouseMove(e)
         if (e.button === 0) {
             Input.mouseIsDown = false
-            Input.clickType.left = true
+            Input.queuedClicks.left = true
         }
         if (e.button === 2) {
-            Input.clickType.right = true
+            Input.queuedClicks.right = true
         }
-        Input.mouseJustReleased = true
     }
 
     static consumeClick(btn) {

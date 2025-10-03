@@ -14,6 +14,12 @@ class HexCoordinates {
         return `(${this.q},${this.r})`
     }
 
+    static fromString(str) {
+        const match = str.match(/^\((-?\d+),\s*(-?\d+)\)$/)
+        // Should probably throw an error here if no match is found
+        return new HexCoordinates(parseInt(match[1], 10), parseInt(match[2], 10))
+    }
+
     toKey() {
         return `(${this.q},${this.r})`
     }
