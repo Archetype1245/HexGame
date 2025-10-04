@@ -30,8 +30,8 @@ class HexGridConfig {
     }
     static animations = {
         // Times in ms
-        fallSpeed: 100,
-        fallDelay: 15,
+        fallSpeed: 2,
+        fallDelay: 60,
         rotation: 200
     }
 }

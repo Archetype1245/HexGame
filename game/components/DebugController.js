@@ -5,6 +5,7 @@ class DebugController extends Component {
         this.remainingRuns = 0
         this.scene = SceneManager.getActiveScene()
         this.data = this.scene.gridData
+        this.layout = GameObject.getObjectByName("HexGridGameObject").getComponent(LayoutController)
     }
 
     update() {
@@ -31,9 +32,9 @@ class DebugController extends Component {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        for (const [key, cell] of this.data.axialInfo) {
-            const hex = cell.hex;
-            const pos = hex.transform.position;
+        for (const [key, obj] of this.data.axialInfo) {
+            const hex = obj.hex;
+            const pos = hex?.transform.position ?? this.layout.getHexCenter(HexCoordinates.fromString(key))
             ctx.fillText(key, pos.x, pos.y);
         }
 

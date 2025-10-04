@@ -2,8 +2,8 @@ class GameObject {
     name = ""
     components = []
     hasStarted = false
-    markForDeleted = false
-    
+    markForDelete = false
+
     constructor(name) {
         this.name = name
         this.addComponent(new Transform())
@@ -44,5 +44,9 @@ class GameObject {
 
     destroy() {
         this.markForDelete = true
+    }
+
+    static getObjectByName(name) {
+        return SceneManager.getActiveScene().gameObjects.find(gameObject => gameObject.name == name)
     }
 }

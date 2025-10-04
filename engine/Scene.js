@@ -1,11 +1,12 @@
 class Scene {
     started = false
     gameObjects = []
-    layerGroups = new Map()
-    sortedLayers = []
+    layerMap = new Map()
+    layerOrder = ["background", "foreground"]
 
     start() {
         this.started = true
+
         for (const gameObject of this.gameObjects) {
             gameObject.start()
         }
@@ -20,44 +21,45 @@ class Scene {
             gameObject.update()
         }
 
-        this.gameObjects = this.gameObjects.filter(go => !go.markForDelete)
+        this.gameObjects = this.gameObjects.filter(go => {
+            if (go.markForDelete) {
+                this.removeFromLayerMap(go)
+                return false
+            }
+            return true
+        })
     }
 
     draw(ctx) {
-        for (const layer of this.sortedLayers) {
-            const layerGroup = this.layerGroups.get(layer)
-            for (const gameObject of layerGroup) {
-                gameObject.draw(ctx)
-            }
+        for (const layer of this.layerOrder) {
+            const gameObjects = this.layerMap.get(layer)
+            if (gameObjects) gameObjects.forEach(go => go.draw(ctx))
         }
     }
 
-    addToLayer(layer, gameObject) {
-        let layerGroup = this.layerGroups.get(layer)
-        if (!layerGroup) {
-            layerGroup = new Set()
-            this.layerGroups.set(layer, layerGroup)
-
-            const idx = this.sortedLayers.findIndex(i => i > layer)
-            if (idx === -1) {
-                this.sortedLayers.push(layer)
-            }
-            else {
-                this.sortedLayers.splice(idx, 0, layer)
-            }
+    initLayers() {
+        for (const layer of this.layerOrder) {
+            this.layerMap.set(layer, new Set())
         }
-        layerGroup.add(gameObject)
     }
 
-    static instantiate(gameObject, { position = null, scene = null, layer = 0, forceStart = false}) {
+    addToLayerMap(go) {
+        this.layerMap.get(go.layer).add(go)
+    }
+
+    removeFromLayerMap(go) {
+        this.layerMap.get(go.layer).delete(go)
+    }
+
+    static instantiate(gameObject, { position = null, scene = null, layer, forceStart = false }) {
         const currentScene = scene ?? SceneManager.getActiveScene()
         currentScene.gameObjects.push(gameObject)
 
-        gameObject.layer = layer ?? 0
-        currentScene.addToLayer(layer, gameObject)
+        gameObject.layer = layer ?? "background"
+        currentScene.addToLayerMap(gameObject)
 
         if (position) gameObject.transform.position = position
-        // Bit of a pseudo-Awake()
+        // Basically a way to force a GO's Start() to act like Awake() would
         if (forceStart) gameObject.start(); gameObject.hasStarted = true
         return gameObject
     }

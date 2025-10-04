@@ -21,9 +21,10 @@ class RotationController extends Component {
         for (let i = 0; i < axials.length; i++) {
             const key = axials[i].toKey()
             const hex = this.data.getHex(key)
-            const pos = hex.transform.position
+            if (!hex) { this.game.set(GameState.Phase.idle); return }    // Don't try to rotate if any hexes are missing
 
             hexes.push(hex)
+            const pos = hex.transform.position
             startPositions.push(pos.clone())
         }
 
@@ -36,12 +37,17 @@ class RotationController extends Component {
             hexes[i].transform.position = startPositions[newIdx]
 
             const newAxial = axials[newIdx]
+            hexes[i].cell = newAxial
             this.data.addHex(newAxial.toKey(), hexes[i])
         }
 
-        this.matcher.checkForMatches(node)
-
-        this.game.set(GameState.Phase.idle)
+        const matches = this.matcher.checkForMatches(node)
+        if (matches) {
+            this.game.set(GameState.Phase.matching)
+            this.matcher.processMatches(matches)
+        } else {
+            this.game.set(GameState.Phase.idle)                     // Rotation Complete
+        }
     }
 
     async animateRotation(hexes, node, cw) {

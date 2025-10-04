@@ -17,26 +17,16 @@ class HexMath {
         Northeast: 5
     }
 
-    // Now unused - keeping for now to see if it ever becomes useful again
     static rMinForGivenQ(q) {
         return -((q + (q & 1)) / 2) || 0
     }
 
+    static rMaxForGivenQ(q) {
+        return HexGridConfig.grid.rows + HexMath.rMinForGivenQ(q) - 1
+    }
+
     static rToOffset(q, r) {
         return r + q - Math.floor(q / 2)
-    }
-
-    static getNeighbor(axial, dirIndex) {
-        const dirOffset = HexMath.axialDirections[dirIndex % 6]
-        return axial.add(dirOffset)
-    }
-
-    static getAllNeighbors(axial) {
-        const neighbors = []
-        for (let i = 0; i < 6; i++) {
-            neighbors[i] = HexMath.getNeighbor(axial, i)
-        }
-        return neighbors
     }
 
     static getCentroid(h1, h2, h3) {

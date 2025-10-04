@@ -81,9 +81,9 @@ class LayoutController extends Component {
         this.lastH = Engine.canvas.height
     }
 
-    getHexCenter(axial) {
-        const q = axial.q
-        const r = axial.r
+    getHexCenter(cell) {
+        const q = cell.q
+        const r = cell.r
 
         const cx = this.startX + q * this.hSpacing
         const cy = this.startY - ((q * this.hexH / 2) + (r * this.hexH))

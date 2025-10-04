@@ -15,7 +15,7 @@ class NodeSpawnController extends Component {
         const nodeObject = new NodeGameObject()
         const node = nodeObject.getComponent(NodeController)
 
-        Scene.instantiate(nodeObject, { position: position, layer: 1 })
+        Scene.instantiate(nodeObject, { position: position, layer: "nodes" })
 
         node.gameObject.addComponent(new Circle(), {
             r: HexGridConfig.visuals.nodeRadius,

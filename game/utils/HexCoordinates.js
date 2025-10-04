@@ -16,12 +16,25 @@ class HexCoordinates {
 
     static fromString(str) {
         const match = str.match(/^\((-?\d+),\s*(-?\d+)\)$/)
-        // Should probably throw an error here if no match is found
+        // Should realistically throw an error here if no match is found
         return new HexCoordinates(parseInt(match[1], 10), parseInt(match[2], 10))
     }
 
     toKey() {
         return `(${this.q},${this.r})`
+    }
+
+    getNeighbor(dirIndex) {
+        const dirOffset = HexMath.axialDirections[dirIndex % 6]
+        return this.add(dirOffset)
+    }
+
+    getAllNeighbors() {
+        const neighbors = []
+        for (let i = 0; i < 6; i++) {
+            neighbors[i] = this.getNeighbor(i)
+        }
+        return neighbors
     }
 
     static compareCoords(c1, c2) {

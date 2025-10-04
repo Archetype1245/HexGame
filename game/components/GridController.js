@@ -22,15 +22,13 @@ class GridController extends Component {
         if (this.game.canInteract) {
             this.updateCurrentNode()
 
-            if (Input.mouseClicks.left) {
+            if ((Input.mouseClicks.left || Input.mouseClicks.right)            // XOR
+                && !(Input.mouseClicks.left && Input.mouseClicks.right)) {
+                
+                const cw = Input.mouseClicks.right
                 if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/false)
-                // TODO: Add ccw rotation call for star hexes
-            }
-            if (Input.mouseClicks.right) {
-                if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, /*cw=*/true)
-                // TODO: Add cw rotation call for star hexes
+                    this.rotationManager.rotateAroundNode(this.selectedNode, cw)
+                // TODO: Add rotation call for star hexes
             }
         }
     }
@@ -43,13 +41,11 @@ class GridController extends Component {
         for (let q = 0; q < this.totalColumns; q++) {
             let row = HexMath.rMinForGivenQ(q)
             for (let r = row; r < row + this.totalRows; r++) {
-                const axial = new HexCoordinates(q, r)
-                const pos = this.layout.getHexCenter(axial)
-                const hex = this.hexSpawner.spawnHex(pos, axial, /*initial=*/true)
+                const cell = new HexCoordinates(q, r)
+                const pos = this.layout.getHexCenter(cell)
+                const hex = this.hexSpawner.spawnHex(pos, cell, /*initial=*/true)
 
-                // This is here simply to ensure the spawner doesn't need to know more than it has to (layout)
-                hex.gameObject.getComponent(Polygon).points = this.layout.hexVertexOffsets
-                this.data.addHex(HexCoordinates.getKeyFrom(axial), hex)
+                this.data.addHex(HexCoordinates.getKeyFrom(cell), hex)
             }
         }
     }
@@ -61,8 +57,8 @@ class GridController extends Component {
             for (let r = row; r < row + this.totalRows - 1; r++) {
                 const hexCoords = new HexCoordinates(q, r)
                 for (const vertex of validVertices) {
-                    const n1Coords = HexMath.getNeighbor(hexCoords, HexMath.mod(vertex - 1, 6))
-                    const n2Coords = HexMath.getNeighbor(hexCoords, vertex)
+                    const n1Coords = hexCoords.getNeighbor(HexMath.mod(vertex - 1, 6))
+                    const n2Coords = hexCoords.getNeighbor(vertex)
 
                     const nodePos = HexMath.getCentroid(this.layout.getHexCenter(hexCoords),
                         this.layout.getHexCenter(n1Coords),
@@ -124,7 +120,8 @@ class GridController extends Component {
                 nodes.forEach(n => pNodes.add(n))
 
                 // Grab the cell-neighbors (only if they have hex GOs)
-                const neighbors = HexMath.getAllNeighbors(cell).filter(c => this.data.getHex(c.toKey()))
+                // const neighbors = HexMath.getAllNeighbors(cell).filter(c => this.data.getHex(c.toKey()))
+                const neighbors = cell.getAllNeighbors().filter(c => this.data.getHex(c.toKey()))
                 neighbors.forEach(c => pCells.add(c.toKey()))
                 stringNeighbors.add(cell.toString())
             }
