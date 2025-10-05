@@ -1,7 +1,7 @@
 class NodeController extends Component {
     neighbors = []     // Axial coordinates corresponding to the neighbor cells
     perimeterNodes = []
-    perimeterCells = []
+    perimeterCellKeys = []
 
     start() {
 

@@ -10,7 +10,7 @@ class MatchController extends Component {
 
     checkForMatches(node) {
         const nodesToCheck = node.perimeterNodes
-        const cellsToCheck = node.perimeterCells      // TODO: use this to check for other match types, when added
+        const cellsToCheck = node.perimeterCellKeys      // TODO: use this to check for other match types, when added
         const matchedHexes = new Set()
 
         // Check nodes for basic matches

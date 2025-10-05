@@ -32,7 +32,7 @@ class Config {
         totalNodeRotations: 3,
         // Times in ms
         fallSpeed: 2,
-        fallDelay: 50,
+        fallDelay: 60,
         rotation: 150
     }
 

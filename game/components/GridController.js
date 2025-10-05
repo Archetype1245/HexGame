@@ -120,16 +120,14 @@ class GridController extends Component {
                 nodes.forEach(n => pNodes.add(n))
 
                 // Grab the cell-neighbors (only if they have hex GOs)
-                // const neighbors = HexMath.getAllNeighbors(cell).filter(c => this.data.getHex(c.toKey()))
-                const neighbors = cell.getAllNeighbors().filter(c => this.data.getHex(c.toKey()))
-                neighbors.forEach(c => pCells.add(c.toKey()))
+                const neighbors = cell.getValidNeighbors()
+                    .forEach(c => pCells.add(c.toKey()))
                 stringNeighbors.add(cell.toString())
             }
-            pNodes.delete(node)                                        // Remove current node from perimeter list
+            // Remove current node and immediate cell-neighbors from perimeter list, then store
+            pNodes.delete(node)    
             node.perimeterNodes = [...pNodes]
-
-            pCells = [...pCells].filter(c => !stringNeighbors.has(c))  // Remove immediate neighbors from perimeter
-            node.perimeterCells = pCells.map(c => HexCoordinates.fromString(c))
+            node.perimeterCellKeys = [...pCells].filter(c => !stringNeighbors.has(c))
         }
     }
 
