@@ -26,7 +26,7 @@ class Engine {
     }
 
     static draw() {
-        Engine.ctx.fillStyle = HexGridConfig.visuals.background
+        Engine.ctx.fillStyle = Config.visuals.background
         Engine.ctx.beginPath()
         Engine.ctx.rect(0, 0, Engine.canvas.width, Engine.canvas.height)
         Engine.ctx.fill()

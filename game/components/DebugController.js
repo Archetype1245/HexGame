@@ -58,17 +58,8 @@ class DebugController extends Component {
         console.log(`No match detected.`)
         this.data.clear()
 
-        for (const [layer, group] of this.scene.layerGroups) {
-            for (const go of Array.from(group)) {
-                if (go.name !== "DebugVisualGameObject") {
-                    group.delete(go)
-                }
-            }
-            if (group.size === 0) {
-                this.scene.layerGroups.delete(layer)
-                this.scene.sortedLayers = this.scene.sortedLayers.filter(l => l !== layer)
-            }
-        }
+        this.scene.initLayers()
+        this.scene.addToLayerMap(this.gameObject)
 
         this.scene.gameObjects = this.scene.gameObjects.filter(go => go.name === "DebugVisualGameObject")
         Scene.instantiate(new HexGridGameObject, { scene: this.scene, forceStart: true})

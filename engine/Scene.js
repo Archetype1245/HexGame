@@ -43,12 +43,47 @@ class Scene {
         }
     }
 
+    ensureLayerOrThrow(layer) {
+        if (this.layerMap.has(layer)) return true
+        throw new ReferenceError(`Layer "${layer}" not found`)
+    }
+
     addToLayerMap(go) {
-        this.layerMap.get(go.layer).add(go)
+        this.ensureLayerOrThrow(go.layer)
+        this.layerMap.get(go.layer)?.add(go)
     }
 
     removeFromLayerMap(go) {
-        this.layerMap.get(go.layer).delete(go)
+        this.ensureLayerOrThrow(go.layer)
+        this.layerMap.get(go.layer)?.delete(go)
+    }
+
+    changeLayer(go, layer) {
+        if (go.layer === layer) return
+        this.removeFromLayerMap(go)
+        go.layer = layer
+        this.addToLayerMap(go)
+    }
+
+    getLayerNameByIndex(idx) {
+        if (idx < 0 || idx >= this.layerOrder.length) throw new RangeError(`Layer index out of range: ${idx}`)
+        return this.layerOrder[idx]
+    }
+
+    moveGameObjectBy(go, shift) {
+        const fromLayer = this.layerOrder.indexOf(go.layer)
+        if(fromLayer < 0) throw new ReferenceError(`Layer "${go.layer}" not found.`)
+
+        const toLayer = Math.max(0, Math.min(this.layerOrder.length - 1, fromLayer + shift))
+        if (fromLayer !== toLayer) this.changeLayer(go, this.getLayerNameByIndex(toLayer))
+    }
+
+    moveGameObjectUp(go) {
+        this.moveGameObjectBy(go, 1)
+    }
+
+    moveGameObjectDown(go) {
+        this.moveGameObjectBy(go, -1)
     }
 
     static instantiate(gameObject, { position = null, scene = null, layer, forceStart = false }) {

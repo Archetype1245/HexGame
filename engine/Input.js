@@ -23,13 +23,15 @@ class Input {
     }
 
     static beginFrame() {
-        Input.prevKeys = new Set(Input.keysDown)
-        Input.lastMouseX = Input.mouseX
-        Input.lastMouseY = Input.mouseY
-
         Input.mouseClicks.left = Input.queuedClicks.left
         Input.mouseClicks.right = Input.queuedClicks.right
         Input.queuedClicks = { left: false, right: false }
+    }
+
+    static endFrame() {
+        Input.prevKeys = new Set(Input.keysDown)
+        Input.lastMouseX = Input.mouseX
+        Input.lastMouseY = Input.mouseY   
     }
 
     static keyDown(e) {

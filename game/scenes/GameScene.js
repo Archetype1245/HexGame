@@ -6,6 +6,6 @@ class GameScene extends Scene{
         this.layerOrder = ["background", "grid", "nodes", "rotation", "ui", "debug"]
         this.initLayers()
         Scene.instantiate(new HexGridGameObject(), { scene: this })
-        // Scene.instantiate(new DebugVisualGameObject(), { scene: this, layer: "debug" })
+        Scene.instantiate(new DebugVisualGameObject(), { scene: this, layer: "debug" })
     }
 }

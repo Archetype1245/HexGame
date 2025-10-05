@@ -1,10 +1,10 @@
 class LayoutController extends Component {
     start(cols, rows) {
-        this.totalColumns = HexGridConfig.grid.columns
-        this.totalRows = HexGridConfig.grid.rows
-        this.baseHexRadius = HexGridConfig.grid.hexRadius
-        this.screenWidthPct = HexGridConfig.grid.screenWidthPct
-        this.screenHeightPct = HexGridConfig.grid.screenHeightPct
+        this.totalColumns = Config.grid.columns
+        this.totalRows = Config.grid.rows
+        this.baseHexRadius = Config.grid.hexRadius
+        this.screenWidthPct = Config.grid.screenWidthPct
+        this.screenHeightPct = Config.grid.screenHeightPct
 
         this.scale = 1
         this.offsetX = 0

@@ -37,6 +37,15 @@ class HexCoordinates {
         return neighbors
     }
 
+    getValidNeighbors() {
+        // Get all neighbors for a cell and filter out any cells that fall outside the defined grid bounds
+        return this.getAllNeighbors().filter(c => {
+            const rMin = HexMath.rMinForGivenQ(c.q)
+            const rMax = HexMath.rMaxForGivenQ(c.q)
+            return c.q >= 0 && c.q < Config.grid.columns && c.r >= rMin && c.r <= rMax
+        })
+    }
+
     static compareCoords(c1, c2) {
         return c1.q - c2.q || c1.r - c2.r
     }

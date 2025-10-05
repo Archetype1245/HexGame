@@ -22,7 +22,7 @@ class HexMath {
     }
 
     static rMaxForGivenQ(q) {
-        return HexGridConfig.grid.rows + HexMath.rMinForGivenQ(q) - 1
+        return Config.grid.rows + HexMath.rMinForGivenQ(q) - 1
     }
 
     static rToOffset(q, r) {

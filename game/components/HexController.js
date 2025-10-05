@@ -4,7 +4,7 @@ class HexController extends Component {
     cell = null
 
     start() {
-        this.type = HexGridConfig.types.basic                           // TODO (placeholder)
+        this.type = Config.types.basic                           // TODO (placeholder)
     }
 
     setPosition(cell) {

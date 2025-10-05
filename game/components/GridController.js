@@ -1,8 +1,8 @@
 class GridController extends Component {
     start() {
         this.scene = SceneManager.getActiveScene()
-        this.totalColumns = HexGridConfig.grid.columns
-        this.totalRows = HexGridConfig.grid.rows
+        this.totalColumns = Config.grid.columns
+        this.totalRows = Config.grid.rows
 
         this.layout = this.gameObject.getComponent(LayoutController)
         this.hexSpawner = this.gameObject.getComponent(HexSpawnController)
@@ -90,7 +90,7 @@ class GridController extends Component {
         const outlineVariation = vertexIndex % 2
         node.gameObject.addComponent(new Polygon(), {
             points: this.layout.nodeOutlineOffsets[outlineVariation],
-            strokeStyle: HexGridConfig.visuals.nodeOutlineColor,
+            strokeStyle: Config.visuals.nodeOutlineColor,
             lineWidth: 6,
             fill: false,
             hidden: true

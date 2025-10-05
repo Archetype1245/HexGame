@@ -6,10 +6,6 @@ class MatchController extends Component {
         this.data = this.scene.gridData
         this.game = this.scene.gameState
         this.queuedHexesByCol = new Map()
-        this.affectedColsData = new Map()
-    }
-    update(){
-
     }
 
     checkForMatches(node) {
@@ -24,38 +20,43 @@ class MatchController extends Component {
             const allMatch = hexes.every((hex, idx, arr) => hex?.color === arr[0]?.color)
             if (allMatch) hexes.forEach(h => matchedHexes.add(h))  // All hexes had matching colors - add them to matches
         }
-        return matchedHexes.size > 0 ? matchedHexes : null
+        return matchedHexes
     }
 
-    processMatches(matchedHexes) {
-        for (const hex of matchedHexes) {
-            this.updateAffectedCols(hex.cell)
+    async processMatches(matchedHexes) {
+        this.game.set(GameState.Phase.matching)
+        while (matchedHexes.size > 0) {
+            const affectedColsData = new Map()
+            for (const hex of matchedHexes) {
+                this.updateAffectedCols(affectedColsData, hex.cell)
 
-            this.data.deleteHex(hex.cell.toKey())
-            hex.gameObject.destroy()
+                this.data.deleteHex(hex.cell.toKey())
+                hex.gameObject.destroy()
+            }
+
+            const cascadingScopes = await this.processGravity(affectedColsData)
+            matchedHexes = this.checkForCascades(cascadingScopes) ?? new Set()
         }
-
-        this.processGravity()
-
         this.game.set(GameState.Phase.idle)
     }
 
-    updateAffectedCols(cell) {
+    updateAffectedCols(affectedColsData, cell) {
         const q = cell.q
         const r = cell.r
-        let entry = this.affectedColsData.get(q)
+        let entry = affectedColsData.get(q)
         if (!entry) {
             entry = { lowestRow: Infinity, hexesToSpawn: 0 }
-            this.affectedColsData.set(q, entry)
+            affectedColsData.set(q, entry)
         }
         entry.lowestRow = Math.min(entry.lowestRow, r)
         entry.hexesToSpawn++
     }
 
-    async processGravity() {
+    async processGravity(affectedColsData) {
         const transitions = []
+        const cascadingScopes = { nodesToCheck: new Set(), cellsToCheck: new Set() }
 
-        for (let [q, data] of this.affectedColsData) {
+        for (let [q, data] of affectedColsData) {
             const rMax = HexMath.rMaxForGivenQ(q)
             let emptyCells = 0
 
@@ -65,7 +66,15 @@ class MatchController extends Component {
                 const cell = new HexCoordinates(q, r)
                 const key = cell.toKey()
 
-                const hex = this.data.axialInfo.get(key)?.hex
+                const entry = this.data.axialInfo.get(key)
+                // Per cell, get all nodes -> filter out holes in array -> add nodes to scope
+                entry.nodesByVertex
+                    .filter(Boolean)
+                    .forEach(n => cascadingScopes.nodesToCheck.add(n))
+                // Per cell, get all valid neighbor cells -> add valid calls to scope (as keys)
+                cell.getValidNeighbors().forEach(c => cascadingScopes.cellsToCheck.add(c.toKey()))
+                
+                const hex = entry.hex
                 if (!hex) { emptyCells++; continue }
 
                 const newR = r - emptyCells
@@ -73,11 +82,10 @@ class MatchController extends Component {
 
                 const toPos = this.layout.getHexCenter(newCell)
                 const fromPos = hex.transform.position
-                const delay = (r + 1 - data.lowestRow) * HexGridConfig.animations.fallDelay
+                const delay = (r + 1 - data.lowestRow) * Config.animations.fallDelay
 
                 this.data.deleteHex(key)
                 moves.push({ hex, newCell, fromPos, toPos, delay })
-                console.log(`For hex at (${q},${r}):\ncell=${cell}\nkey=${key}\nhex=${hex}\nnewR=${newR}\nnewCell=${newCell}\ntoPos=${toPos}\nfromPos=(${fromPos.x},${fromPos.y})\ndelay=${delay}`)
             }
             // Spawn new hexes to replace those that were destroyed (and get their data)
             if (data.hexesToSpawn && data.hexesToSpawn > 0) {
@@ -91,7 +99,7 @@ class MatchController extends Component {
                     
                     const hex = this.hexSpawner.spawnHex(fromPos)
                     hex.transform.position = fromPos
-                    const delay = (rMax - data.lowestRow + 1) * HexGridConfig.animations.fallDelay
+                    const delay = (rMax - data.lowestRow + 1) * Config.animations.fallDelay
 
                     moves.push({ hex, newCell, fromPos, toPos, delay })
                 }
@@ -106,17 +114,22 @@ class MatchController extends Component {
                 transitions.push(p)
             }
         }
+        await Promise.allSettled(transitions)      // Wait for all hexes to stop falling before continuing
+        return cascadingScopes
+    }
 
-        await Promise.allSettled(transitions)
-        this.affectedColsData.clear()
-
-        // TODO: call method to check for/handle cascading matches
-        
-        this.game.set(GameState.Phase.idle)
+    checkForCascades(scope) {
+        const matchedHexes = new Set()
+        for (const node of scope.nodesToCheck) {
+            const matches = this.checkForMatches(node)
+            for (const h of matches) matchedHexes.add(h)
+        }
+        // TODO: check cellsToCheck for star-matches after implementing them
+        return matchedHexes
     }
 
     fallAnimation(m) {
-        const duration = (m.toPos.y - m.fromPos.y) / HexGridConfig.animations.fallSpeed
+        const duration = (m.toPos.y - m.fromPos.y) / Config.animations.fallSpeed
         return Engine.animation.add(new Transition({
             from: m.fromPos,
             to: m.toPos,

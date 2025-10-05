@@ -1,4 +1,4 @@
-class HexGridConfig {
+class Config {
     static grid = {
         columns: 10,
         rows: 8,
@@ -29,11 +29,21 @@ class HexGridConfig {
         bomb: "bomb"
     }
     static animations = {
+        totalNodeRotations: 3,
         // Times in ms
         fallSpeed: 2,
-        fallDelay: 60,
-        rotation: 200
+        fallDelay: 50,
+        rotation: 150
+    }
+
+    static layers = {
+        background: "background",
+        grid: "grid",
+        nodes: "nodes",
+        rotation: "rotation",
+        ui: "ui",
+        debug: "debug"
     }
 }
 
-window.HexGridConfig = HexGridConfig
+window.Config = Config

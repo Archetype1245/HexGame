@@ -18,8 +18,8 @@ class NodeSpawnController extends Component {
         Scene.instantiate(nodeObject, { position: position, layer: "nodes" })
 
         node.gameObject.addComponent(new Circle(), {
-            r: HexGridConfig.visuals.nodeRadius,
-            fillStyle: HexGridConfig.visuals.nodeColor,
+            r: Config.visuals.nodeRadius,
+            fillStyle: Config.visuals.nodeColor,
             hidden: true
         })
         return node

@@ -17,15 +17,15 @@ class HexSpawnController extends Component {
 
         Scene.instantiate(hexObject, { position: position, layer: "grid" })
 
-        const colors = initial && cell ? this.getValidColors(cell) : Object.values(HexGridConfig.hexColors)
+        const colors = initial && cell ? this.getValidColors(cell) : Object.values(Config.hexColors)
         const idx = Math.floor(Math.random() * colors.length)
         hex.color = colors[idx]
         hex.cell = cell
 
         hex.gameObject.addComponent(new Polygon(), {
             points: this.layout.hexVertexOffsets,
-            lineWidth: HexGridConfig.visuals.hexOutlinePx,
-            strokeStyle: HexGridConfig.visuals.hexOutlineColor,
+            lineWidth: Config.visuals.hexOutlinePx,
+            strokeStyle: Config.visuals.hexOutlineColor,
             fillStyle: hex.color
         })
         return hex
@@ -59,6 +59,6 @@ class HexSpawnController extends Component {
             }
         }
 
-        return Object.values(HexGridConfig.hexColors).filter(c => (!invalidColors.includes(c)))
+        return Object.values(Config.hexColors).filter(c => (!invalidColors.includes(c)))
     }
 }
