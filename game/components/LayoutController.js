@@ -37,7 +37,7 @@ class LayoutController extends Component {
         // TODO: Replace this logic with camera scaling as needed.
         if (Engine.canvas.width !== this.lastW || Engine.canvas.height !== this.lastH) {
             this.computeLayout()
-            this.calcHexVertexOffsets()
+            this.calcVertexOffsets()
             this.updateHexCenters()
             // Skipping node positioning updates - waiting for camera implementation
         }

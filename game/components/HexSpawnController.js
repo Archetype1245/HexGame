@@ -58,11 +58,6 @@ class HexSpawnController extends Component {
         // And remove colors from the pool if it would create a match in the initial grid generation
         // TODO: Add star-hex match detection
         let invalidColors = []
-
-        // const d1 = HexMath.Direction.South
-        // const d2 = HexMath.Direction.Southwest
-        // const d3 = HexMath.Direction.Northwest
-
         const dirs = [HexMath.Direction.South, HexMath.Direction.Southwest, HexMath.Direction.Northwest]
 
         for (let i = 0; i < dirs.length - 1; i++) {

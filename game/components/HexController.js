@@ -1,8 +1,4 @@
 class HexController extends Component {
-    type = null
-    color = null
-    cell = null
-
     start() {
         this.type = Config.types.basic                           // TODO (placeholder)
         this.layout = GameObject.getObjectByName("HexGridGameObject").getComponent(LayoutController)
@@ -20,22 +16,35 @@ class HexController extends Component {
             fillStyle: this.color,
             points: this.layout.starVertexOffsets
         }
+        const pFill = this.gameObject.getComponents(Polygon).find(p => p.name === "Fill Polygon")
+        Object.assign(pFill, updates)
 
+
+        this.updateStarOutline()
+    }
+
+    updateStarOutline() {
+        const neighbors = this.cell.getValidNeighbors()
+        const vertices = []
+        if (neighbors.length == 6) {
+            for (let i = 0; i < 6; i++) {
+                for (let v = i; v < (i + 3); v++) {
+                    vertices.push(this.layout.hexVertexOffsets[v])
+                }
+            }
+        }
         const settings = {
             name: "Outline Polygon",
-            points: [new Vector2(0,0), new Vector2(500, 500)],
+            points: vertices,
             strokeStyle: Config.visuals.nodeOutlineColor,
             lineWidth: 6,
             fill: false,
             hidden: true
         }
-
-        const p = this.gameObject.getComponents(Polygon).find(p => p.name === "Fill Polygon")
-        Object.assign(p, updates)
-        this.gameObject.addComponent(new Polygon(), settings)
+        this.pOutline = this.gameObject.addComponent(new Polygon(), settings)
     }
 
-    toggleVisibility() {
-
+    toggleVisibility(on) {
+        this.pOutline.hidden = !on
     }
 }
