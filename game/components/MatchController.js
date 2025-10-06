@@ -6,36 +6,67 @@ class MatchController extends Component {
         this.data = this.scene.gridData
         this.game = this.scene.gameState
         this.queuedHexesByCol = new Map()
+        this.newStars = new Set()
     }
 
-    checkForMatches(node) {
-        const nodesToCheck = node.perimeterNodes
-        const cellsToCheck = node.perimeterCellKeys      // TODO: use this to check for other match types, when added
+    checkForMatches(scope) {
         const matchedHexes = new Set()
-
-        // Check nodes for basic matches
-        for (const node of nodesToCheck) {
-            const hexes = node.neighbors.map(cell => this.data.axialInfo.get(cell.toKey()).hex)
-
-            const allMatch = hexes.every((hex, idx, arr) => hex?.color === arr[0]?.color)
-            if (allMatch) hexes.forEach(h => matchedHexes.add(h))  // All hexes had matching colors - add them to matches
-        }
+        const basicMatches = this.checkBasicMatches(scope.nodes)
+        const starMatches = this.checkStarMatches(scope.keys)
+        for (const m of basicMatches) matchedHexes.add(m)
+        for (const m of starMatches) matchedHexes.add(m)
         return matchedHexes
+    }
+
+    checkBasicMatches(nodes) {
+        const matches = new Set()
+        for (const node of nodes) {
+            const hexes = node.neighbors.map(cell => this.data.axialInfo.get(cell.toKey()).hex)
+            if (this.allMatch(hexes)) hexes.forEach(h => matches.add(h))
+        }
+        return matches
+    }
+    
+    checkStarMatches(keys) {
+        const matches = new Set()
+        for (const key of keys) {
+            const hexes = HexCoordinates.fromString(key)
+                .getValidNeighbors()
+                .map(c => this.data.axialInfo.get(c.toKey()).hex)
+            if (hexes.length < 6) continue
+            if (this.allMatch(hexes)) {
+                hexes.forEach(h => matches.add(h))
+                this.newStars.add(this.data.axialInfo.get(key).hex)  // Keep track of the center hex to convert to star later
+            }
+        }
+        return matches
+    }
+
+    allMatch(hexes) {
+        return hexes.every((hex, _, arr) => hex?.color === arr[0]?.color)
     }
 
     async processMatches(matchedHexes) {
         this.game.set(GameState.Phase.matching)
         while (matchedHexes.size > 0) {
             const affectedColsData = new Map()
+
+            if (this.newStars.size > 0) {
+                for (const hex of this.newStars) {
+                    matchedHexes.delete(hex)       // Remove the new star from the set of hexes to be deleted, if it's in there (edge case)
+                    hex.convertToStar()
+                }
+                this.newStars.clear()
+            }
+
             for (const hex of matchedHexes) {
                 this.updateAffectedCols(affectedColsData, hex.cell)
-
                 this.data.deleteHex(hex.cell.toKey())
                 hex.gameObject.destroy()
             }
 
             const cascadingScopes = await this.processGravity(affectedColsData)
-            matchedHexes = this.checkForCascades(cascadingScopes) ?? new Set()
+            matchedHexes = this.checkForMatches(cascadingScopes)
         }
         this.game.set(GameState.Phase.idle)
     }
@@ -54,7 +85,7 @@ class MatchController extends Component {
 
     async processGravity(affectedColsData) {
         const transitions = []
-        const cascadingScopes = { nodesToCheck: new Set(), cellsToCheck: new Set() }
+        const cascadingScopes = { nodes: new Set(), keys: new Set() }
 
         for (let [q, data] of affectedColsData) {
             const rMax = HexMath.rMaxForGivenQ(q)
@@ -70,9 +101,9 @@ class MatchController extends Component {
                 // Per cell, get all nodes -> filter out holes in array -> add nodes to scope
                 entry.nodesByVertex
                     .filter(Boolean)
-                    .forEach(n => cascadingScopes.nodesToCheck.add(n))
+                    .forEach(n => cascadingScopes.nodes.add(n))
                 // Per cell, get all valid neighbor cells -> add valid calls to scope (as keys)
-                cell.getValidNeighbors().forEach(c => cascadingScopes.cellsToCheck.add(c.toKey()))
+                cell.getValidNeighbors().forEach(c => cascadingScopes.keys.add(c.toKey()))
                 
                 const hex = entry.hex
                 if (!hex) { emptyCells++; continue }
@@ -118,15 +149,6 @@ class MatchController extends Component {
         return cascadingScopes
     }
 
-    checkForCascades(scope) {
-        const matchedHexes = new Set()
-        for (const node of scope.nodesToCheck) {
-            const matches = this.checkForMatches(node)
-            for (const h of matches) matchedHexes.add(h)
-        }
-        // TODO: check cellsToCheck for star-matches after implementing them
-        return matchedHexes
-    }
 
     fallAnimation(m) {
         const duration = (m.toPos.y - m.fromPos.y) / Config.animations.fallSpeed

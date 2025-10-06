@@ -11,11 +11,9 @@ class HexController extends Component {
         this.cell = cell
     }
 
-    update() {
-
-    }
-
-    draw() {
-
+    convertToStar() {
+        this.type = Config.types.star
+        this.color = "white"
+        this.gameObject.getComponent(Polygon).fillStyle = this.color
     }
 }

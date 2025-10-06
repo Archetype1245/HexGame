@@ -46,7 +46,8 @@ class RotationController extends Component {
             }
 
             if (i < Config.animations.totalNodeRotations - 1) {     // No need to check final rotation for matches
-                const matches = this.matcher.checkForMatches(node)
+                const matchScope = { nodes: node.perimeterNodes, keys: node.perimeterCellKeys }
+                const matches = this.matcher.checkForMatches(matchScope)
                 if (matches.size === 0) continue                    // No matches, continue rotating
 
                 // If matches had elements...

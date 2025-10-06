@@ -31,7 +31,7 @@ class Config {
     static animations = {
         totalNodeRotations: 3,
         // Times in ms
-        fallSpeed: 2,
+        fallSpeed: 1.5,
         fallDelay: 60,
         rotation: 150
     }
