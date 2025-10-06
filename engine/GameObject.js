@@ -1,6 +1,7 @@
 class GameObject {
     name = ""
-    components = []
+    // components = []
+    components = new Map()
     hasStarted = false
     markForDelete = false
 
@@ -10,36 +11,52 @@ class GameObject {
     }
 
     start() {
-        for (const component of this.components) {
-            component.start()
+        for (const componentList of this.components.values()) {
+            componentList.forEach(c => c.start?.())
         }
     }
 
     update() {
-        for (const component of this.components) {
-            component.update()
+        for (const componentList of this.components.values()) {
+            componentList.forEach(c => c.update?.())
         }
     }
 
     draw(ctx) {
-        for (const component of this.components) {
-            component.draw(ctx)
+        for (const componentList of this.components.values()) {
+            componentList.forEach(c => c.draw?.(ctx))
         }
     }
 
+    // addComponent(component, values) {
+    //     this.components.push(component)
+    //     component.gameObject = this
+    //     Object.assign(component, values)
+    //     return this
+    // }
+
     addComponent(component, values) {
-        this.components.push(component)
+        const type = component.constructor
+        if (!this.components.has(type)) this.components.set(type, [])
+
+        this.components.get(type).push(component)
         component.gameObject = this
         Object.assign(component, values)
         return this
     }
 
     getComponent(type) {
-        return this.components.find(c => c instanceof type)
+        const components = this.components.get(type)
+        return components ? components[0] : null
+    }
+
+    getComponents(type) {
+        this.components.get(type)
+        return this.components.get(type) ?? []
     }
 
     get transform() {
-        return this.components[0]
+        return this.getComponent(Transform)
     }
 
     destroy() {

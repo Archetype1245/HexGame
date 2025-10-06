@@ -13,7 +13,7 @@ class HexCoordinates {
     toString() {
         return `(${this.q},${this.r})`
     }
-    // No longer using - keeping in case something changes
+    
     static fromString(str) {
         const match = str.match(/^\((-?\d+),\s*(-?\d+)\)$/)
         if (!match) throw new SyntaxError(`Invalid HexCoordinates string: "${str}". Expected format "(q,r)" with integers.`)

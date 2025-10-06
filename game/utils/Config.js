@@ -14,7 +14,7 @@ class Config {
         nodeColor: "yellow",
         nodeRadius: 7
     }
-    static hexColors = {
+    static colors = {
         red: "#a70000ff",
         orange: "#ff6a00ff",
         lightblue: "#0092d1ff",
@@ -22,6 +22,7 @@ class Config {
         blue: "#030dc8ff",
         purple: "#9201e0ff"
     }
+    static starColor = "#e7e7e7ff"
     static types = {
         basic: "basic",
         bonus: "bonus",
@@ -31,8 +32,8 @@ class Config {
     static animations = {
         totalNodeRotations: 3,
         // Times in ms
-        fallSpeed: 1.5,
-        fallDelay: 60,
+        fallSpeed: 1.75,
+        fallDelay: 80,
         rotation: 150
     }
 

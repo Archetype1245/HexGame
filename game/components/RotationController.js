@@ -6,14 +6,10 @@ class RotationController extends Component {
         this.matcher = this.gameObject.getComponent(MatchController)
     }
 
-    update() {
-        // Nothing?
-    }
-
-    async rotateAroundNode(node, cw) {
+    async rotateHexes(node, cw) {
         this.game.set(GameState.Phase.rotating)
 
-        const cells = node.neighbors
+        const cells = node instanceof NodeController ? node.neighbors : hex.cell.getValidNeighbors
         const shift = cw ? 1 : cells.length - 1
 
         // Start cycle
@@ -52,7 +48,7 @@ class RotationController extends Component {
 
                 // If matches had elements...
                 node.toggleVisibility(false)
-                await this.matcher.processMatches(matches)
+                this.matcher.processMatches(matches)
                 return
             }
         }

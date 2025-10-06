@@ -1,4 +1,5 @@
 class Polygon extends Component {
+    name = "Polygon"
     points = []
     fillStyle = "magenta"
     fill = true

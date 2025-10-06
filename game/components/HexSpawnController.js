@@ -17,9 +17,28 @@ class HexSpawnController extends Component {
 
         Scene.instantiate(hexObject, { position: position, layer: "grid" })
 
-        const colors = initial && cell ? this.getValidColors(cell) : Object.values(Config.hexColors)
+        const colors = initial && cell ? this.getValidColors(cell) : Object.values(Config.colors)
         const idx = Math.floor(Math.random() * colors.length)
         hex.color = colors[idx]
+        hex.cell = cell
+
+        hex.gameObject.addComponent(new Polygon(), {
+            name: "Fill Polygon",
+            points: this.layout.hexVertexOffsets,
+            lineWidth: Config.visuals.hexOutlinePx,
+            strokeStyle: Config.visuals.hexOutlineColor,
+            fillStyle: hex.color
+        })
+        return hex
+    }
+
+    spawnStarHex(position, cell) {
+        const hexObject = new HexGameObject()
+        const hex = hexObject.getComponent(HexController)
+
+        Scene.instantiate(hexObject, { position: position, layer: "grid" })
+
+        hex.color = "white"
         hex.cell = cell
 
         hex.gameObject.addComponent(new Polygon(), {
@@ -59,6 +78,6 @@ class HexSpawnController extends Component {
             }
         }
 
-        return Object.values(Config.hexColors).filter(c => (!invalidColors.includes(c)))
+        return Object.values(Config.colors).filter(c => (!invalidColors.includes(c)))
     }
 }

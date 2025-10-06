@@ -11,7 +11,7 @@ class GridController extends Component {
         this.data = this.scene.gridData
         this.game = this.scene.gameState
 
-        this.selectedNode = null
+        this.selectedPivot = null
 
         this.generateGrid()
         this.generateNodes()
@@ -20,14 +20,14 @@ class GridController extends Component {
 
     update() {
         if (this.game.canInteract) {
-            this.updateCurrentNode()
+            this.updateCurrentPivot()
 
             if ((Input.mouseClicks.left || Input.mouseClicks.right)            // XOR
                 && !(Input.mouseClicks.left && Input.mouseClicks.right)) {
                 
                 const cw = Input.mouseClicks.right
-                if (this.selectedNode instanceof NodeController)
-                    this.rotationManager.rotateAroundNode(this.selectedNode, cw)
+                if (this.selectedPivot instanceof NodeController)
+                    this.rotationManager.rotateHexes(this.selectedPivot, cw)
                 // TODO: Add rotation call for star hexes
             }
         }
@@ -55,31 +55,23 @@ class GridController extends Component {
             let validVertices = (q === 0) ? [0, 5] : [0, 3, 4, 5]
             let row = HexMath.rMinForGivenQ(q)
             for (let r = row; r < row + this.totalRows - 1; r++) {
-                const hexCoords = new HexCoordinates(q, r)
+                const cell = new HexCoordinates(q, r)
                 for (const vertex of validVertices) {
-                    const n1Coords = hexCoords.getNeighbor(HexMath.mod(vertex - 1, 6))
-                    const n2Coords = hexCoords.getNeighbor(vertex)
+                    const n1Cell = cell.getNeighbor(HexMath.mod(vertex - 1, 6))
+                    const n2Cell = cell.getNeighbor(vertex)
+                    const cells = [cell, n1Cell, n2Cell]
 
-                    const nodePos = HexMath.getCentroid(this.layout.getHexCenter(hexCoords),
-                        this.layout.getHexCenter(n1Coords),
-                        this.layout.getHexCenter(n2Coords))
-
+                    const nodePos = HexMath.getCentroid(...cells.map(c => this.layout.getHexCenter(c)))
                     const node = this.nodeSpawner.spawnNode(nodePos)
-                    node.neighbors = [hexCoords, n1Coords, n2Coords]
-
+                    node.neighbors = cells
+                    // Sort neighbor cells to create a canonical key
                     const sortedNeighbors = [...node.neighbors].sort(HexCoordinates.compareCoords)
-
                     const nodeKey = HexCoordinates.getKeyFrom(sortedNeighbors)
                     this.data.addNode(nodeKey, node)
-
-                    // Assign the node the appropriate outline configuration
                     this.setNodeOutline(node, vertex)
-                    // TODO: Perimeter node calculation (for targeted localized match checking
-                    // console.log(node.perimeterNodes)
 
                     // Tie node to the corresponding vertex position of each adjacent cell
                     // Used for quick lookups when determining which outline to show
-                    const cells = [hexCoords, n1Coords, n2Coords]
                     this.storeNodeByVertex(node, cells, vertex)
                 }
             }
@@ -131,12 +123,12 @@ class GridController extends Component {
         }
     }
 
-    updateCurrentNode() {
+    updateCurrentPivot() {
         const px = Input.mouseX
         const py = Input.mouseY
         const cell = this.layout.worldToAxial(px, py)
-        let cellInfo = this.data.axialInfo.get(cell.toKey())
-        const previousNode = this.selectedNode
+        const cellInfo = this.data.axialInfo.get(cell.toKey())
+        const previousPivot = this.selectedPivot
 
         if (cellInfo) {
             const c = this.layout.getHexCenter(cell)
@@ -144,16 +136,22 @@ class GridController extends Component {
             const dx = px - c.x
             const dy = py - c.y
 
-            let a = Math.atan2(dy, dx)
-            a = HexMath.mod(a, 2 * Math.PI)
+            if (cellInfo.hex && cellInfo.hex.type === Config.types.star) {
+                const threshold = this.layout.radius * 0.5
+                const vLength = Math.sqrt(dx*dx + dy*dy)
+                if (vLength < threshold) this.selectedPivot = cellInfo.hex
+            } else {
+                let a = Math.atan2(dy, dx)
+                a = HexMath.mod(a, 2 * Math.PI)
 
-            const idx = Math.floor((a + Math.PI / 6) / (Math.PI / 3)) % 6
-            this.selectedNode = cellInfo.nodesByVertex[idx] ?? null
+                const idx = Math.floor((a + Math.PI / 6) / (Math.PI / 3)) % 6
+                this.selectedPivot = cellInfo.nodesByVertex[idx] ?? null
+            }
         } else {
-            this.selectedNode = null
+            this.selectedPivot = null
         }
 
-        if (previousNode) previousNode.toggleVisibility(false)
-        if (this.selectedNode) this.selectedNode.toggleVisibility(true)
+        if (previousPivot) previousPivot.toggleVisibility(false)
+        if (this.selectedPivot) this.selectedPivot.toggleVisibility(true)
     }
 }

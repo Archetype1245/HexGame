@@ -19,7 +19,7 @@ class LayoutController extends Component {
         this.vSpacing = 0
 
         this.hexVertexOffsets = []
-        for (let i = 0; i < 6; i++) this.hexVertexOffsets[i] = Vector2.zero
+        this.starVertexOffsets = []
 
         this.nodeOutlineOffsets = [[],[]]
 
@@ -28,7 +28,7 @@ class LayoutController extends Component {
         this.lastH = 0
 
         this.computeLayout()
-        this.calcHexVertexOffsets()
+        this.calcVertexOffsets()
         this.calcNodeOutlineVertices()
     }
 
@@ -114,11 +114,22 @@ class LayoutController extends Component {
         return new HexCoordinates(qRounded, rRounded)
     }
 
-    calcHexVertexOffsets() {
+    calcVertexOffsets() {
         for (let i = 0; i < 6; i++) {
-            const angle = i * (Math.PI / 3)
-            this.hexVertexOffsets[i].x = this.radius * Math.cos(angle)
-            this.hexVertexOffsets[i].y = this.radius * Math.sin(angle)
+            // Hexes
+            let a = i * (Math.PI / 3)
+            let r = this.radius
+            let x = r * Math.cos(a)
+            let y = r * Math.sin(a)
+            this.hexVertexOffsets[i] = new Vector2(x, y)
+            // Stars
+            const j = i*2
+            a += (Math.PI / 6)
+            r *= 0.7
+            x = r * Math.cos(a)
+            y = r * Math.sin(a)
+            this.starVertexOffsets[j] = this.hexVertexOffsets[i]
+            this.starVertexOffsets[j+1] = new Vector2(x, y)
         }
     }
 

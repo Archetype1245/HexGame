@@ -16,12 +16,22 @@ class DebugController extends Component {
             }
         }
         if (this.remainingRuns > 0) {
-                this.totalRuns++
-                this.testGridMatchPrevention()
-                this.remainingRuns--
+            this.totalRuns++
+            this.testGridMatchPrevention()
+            this.remainingRuns--
         } else {
-                this.matchTestRunning = false
-                this.totalRuns = 0
+            this.matchTestRunning = false
+            this.totalRuns = 0
+        }
+
+        if (Input.keyHeld("ShiftLeft") && Input.keyPressed("KeyS")) {
+            const px = Input.mouseX
+            const py = Input.mouseY
+            const cell = this.layout.worldToAxial(px, py)
+            const hex = this.data.axialInfo.get(cell.toKey())?.hex
+
+            if (hex) hex.convertToStar()
+
         }
     }
 
@@ -34,8 +44,8 @@ class DebugController extends Component {
 
         for (const [key, obj] of this.data.axialInfo) {
             const hex = obj.hex;
-            const pos = hex?.transform.position ?? this.layout.getHexCenter(HexCoordinates.fromString(key))
-            ctx.fillText(key, pos.x, pos.y);
+            const pos = hex?.transform.position
+            if (pos) ctx.fillText(key, pos.x, pos.y);
         }
 
         ctx.restore();
@@ -62,6 +72,6 @@ class DebugController extends Component {
         this.scene.addToLayerMap(this.gameObject)
 
         this.scene.gameObjects = this.scene.gameObjects.filter(go => go.name === "DebugVisualGameObject")
-        Scene.instantiate(new HexGridGameObject, { scene: this.scene, forceStart: true})
+        Scene.instantiate(new HexGridGameObject, { scene: this.scene, forceStart: true })
     }
 }

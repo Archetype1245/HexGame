@@ -47,8 +47,8 @@ class MatchController extends Component {
     }
 
     async processMatches(matchedHexes) {
-        this.game.set(GameState.Phase.matching)
         while (matchedHexes.size > 0) {
+            this.game.set(GameState.Phase.matching)
             const affectedColsData = new Map()
 
             if (this.newStars.size > 0) {
@@ -84,6 +84,7 @@ class MatchController extends Component {
     }
 
     async processGravity(affectedColsData) {
+        this.game.set(GameState.Phase.resolving)
         const transitions = []
         const cascadingScopes = { nodes: new Set(), keys: new Set() }
 
@@ -96,8 +97,8 @@ class MatchController extends Component {
             for (let r = data.lowestRow; r <= rMax; r++) {
                 const cell = new HexCoordinates(q, r)
                 const key = cell.toKey()
-
                 const entry = this.data.axialInfo.get(key)
+
                 // Per cell, get all nodes -> filter out holes in array -> add nodes to scope
                 entry.nodesByVertex
                     .filter(Boolean)
@@ -113,8 +114,10 @@ class MatchController extends Component {
 
                 const toPos = this.layout.getHexCenter(newCell)
                 const fromPos = hex.transform.position
-                const delay = (r + 1 - data.lowestRow) * Config.animations.fallDelay
+                const delay = (r - data.lowestRow) * Config.animations.fallDelay
 
+                // Technically don't need to delete the entries here, but there's no harm in doing so
+                // (and not doing so was causing brief visual text overlap with the DebugController)
                 this.data.deleteHex(key)
                 moves.push({ hex, newCell, fromPos, toPos, delay })
             }
