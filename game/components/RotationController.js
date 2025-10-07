@@ -6,14 +6,34 @@ class RotationController extends Component {
         this.matcher = this.gameObject.getComponent(MatchController)
     }
 
-    async rotateHexes(node, cw) {
+    async rotateHexes(pivot, cw) {
         this.game.set(GameState.Phase.rotating)
 
-        const cells = node instanceof NodeController ? node.neighbors : hex.cell.getValidNeighbors
+        let cells = []
+        let numRotations = 1
+        let totalAngle = cw ? 1 : -1
+        const matchScope = { nodes: pivot.perimeterNodes, keys: pivot.perimeterCellKeys }
+
+        switch (pivot.type) {
+            case Config.types.node:
+                cells = pivot.neighbors
+                numRotations = 3
+                totalAngle *= (2 * Math.PI / 3)                 // +- 120 degrees, depending on rotation direction
+                break
+
+            case Config.types.star:
+                cells = pivot.cell.getValidNeighbors()
+                totalAngle *= (Math.PI / 3)                     // +- 60 degrees, depending on rotation direction
+                break
+
+            default:
+                break
+        }
+
         const shift = cw ? 1 : cells.length - 1
 
         // Start cycle
-        for (let i = 0; i < Config.animations.totalNodeRotations; i++) {
+        for (let i = 0; i < numRotations; i++) {
             const startPositions = []
             const hexes = []
             for (let i = 0; i < cells.length; i++) {
@@ -28,26 +48,25 @@ class RotationController extends Component {
             }
 
             // Animation
-            await this.animateRotation(hexes, node, cw)
+            await this.animateRotation(hexes, pivot, totalAngle)
 
             // Update values
             for (let i = 0; i < cells.length; i++) {
                 const newIdx = (i + shift) % cells.length
                 hexes[i].transform.position = startPositions[newIdx]
 
-                const newAxial = cells[newIdx]
-                hexes[i].cell = newAxial
-                this.data.addHex(newAxial.toKey(), hexes[i])
+                const newCell = cells[newIdx]
+                hexes[i].setCell(newCell)
+                this.data.addHex(newCell.toKey(), hexes[i])
 
             }
-
-            if (i < Config.animations.totalNodeRotations - 1) {     // No need to check final rotation for matches
-                const matchScope = { nodes: node.perimeterNodes, keys: node.perimeterCellKeys }
+            // No need to check final rotation for matches, but always check star rotation
+            if (pivot.type === Config.types.star || i < numRotations - 1) {
                 const matches = this.matcher.checkForMatches(matchScope)
                 if (matches.size === 0) continue                    // No matches, continue rotating
 
                 // If matches had elements...
-                node.toggleVisibility(false)
+                pivot.toggleVisibility(false)
                 this.matcher.processMatches(matches)
                 return
             }
@@ -55,25 +74,24 @@ class RotationController extends Component {
         this.game.set(GameState.Phase.idle)                         // Rotation Completed with no matches found
     }
 
-    async animateRotation(hexes, node, cw) {
+    async animateRotation(hexes, pivot, angle) {
         for (const hex of hexes) {
-            hex.transform.setParent(node.transform)
+            hex.transform.setParent(pivot.transform)
             this.scene.moveGameObjectUp(hex.gameObject)             // Shift rotating objs up a draw layer
         }
-        this.scene.moveGameObjectUp(node.gameObject)
-        const totalAngle = (cw ? 1 : -1) * (2 * Math.PI / 3)        // +- 120 degrees, depending on rotation direction
+        this.scene.moveGameObjectUp(pivot.gameObject)
 
         await Engine.animation.add(new Transition({
-            from: node.transform.rotation,
-            to: node.transform.rotation + totalAngle,
+            from: pivot.transform.rotation,
+            to: pivot.transform.rotation + angle,
             duration: Config.animations.rotation,
-            onUpdate: (angle) => node.transform.rotation = angle
+            onUpdate: (angle) => pivot.transform.rotation = angle
         }))
 
         for (const hex of hexes) {
             hex.transform.setParent(null)
             this.scene.moveGameObjectDown(hex.gameObject)           // Shift objs back down to orig layer
         }
-        this.scene.moveGameObjectDown(node.gameObject)
+        this.scene.moveGameObjectDown(pivot.gameObject)
     }
 }

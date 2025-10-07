@@ -1,2 +1,0 @@
-class Collider extends Component {
-}

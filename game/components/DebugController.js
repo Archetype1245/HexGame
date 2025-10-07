@@ -30,8 +30,7 @@ class DebugController extends Component {
             const cell = this.layout.worldToAxial(px, py)
             const hex = this.data.axialInfo.get(cell.toKey())?.hex
 
-            if (hex) hex.convertToStar()
-
+            if (hex && hex.type === Config.types.basic) hex.convertToStar()
         }
     }
 

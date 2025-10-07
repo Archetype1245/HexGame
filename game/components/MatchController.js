@@ -142,7 +142,8 @@ class MatchController extends Component {
             for (const m of moves) {
                 const p = this.fallAnimation(m).then(() => {
                     m.hex.transform.position = m.toPos
-                    m.hex.cell = m.newCell
+                    m.hex.setCell(m.newCell)
+                    // m.hex.cell = m.newCell
                     this.data.addHex(m.newCell.toKey(), m.hex)
                 })
                 transitions.push(p)

@@ -26,9 +26,22 @@ class GridController extends Component {
                 && !(Input.mouseClicks.left && Input.mouseClicks.right)) {
                 
                 const cw = Input.mouseClicks.right
-                if (this.selectedPivot instanceof NodeController)
-                    this.rotationManager.rotateHexes(this.selectedPivot, cw)
+                // if (this.selectedPivot instanceof NodeController)
+                //     this.rotationManager.rotateHexes(this.selectedPivot, cw)
                 // TODO: Add rotation call for star hexes
+
+                switch (this.selectedPivot?.type) {
+                    case Config.types.node:
+                        this.rotationManager.rotateHexes(this.selectedPivot, cw)
+                        break
+
+                    case Config.types.star:
+                        this.rotationManager.rotateHexes(this.selectedPivot, cw)
+                        break
+
+                    default:
+                        break
+                }
             }
         }
     }
@@ -45,7 +58,7 @@ class GridController extends Component {
                 const pos = this.layout.getHexCenter(cell)
                 const hex = this.hexSpawner.spawnHex(pos, cell, /*initial=*/true)
 
-                this.data.addHex(HexCoordinates.getKeyFrom(cell), hex)
+                this.data.addHex(cell.toKey(), hex)
             }
         }
     }
@@ -137,9 +150,11 @@ class GridController extends Component {
             const dy = py - c.y
 
             if (cellInfo.hex && cellInfo.hex.type === Config.types.star) {
-                const threshold = this.layout.radius * 0.5
-                const vLength = Math.sqrt(dx*dx + dy*dy)
-                if (vLength < threshold) this.selectedPivot = cellInfo.hex
+                if (cell.getValidNeighbors().length === 6) {
+                    const threshold = this.layout.radius * 0.5
+                    const vLength = Math.sqrt(dx*dx + dy*dy)
+                    if (vLength < threshold) this.selectedPivot = cellInfo.hex
+                }
             } else {
                 let a = Math.atan2(dy, dx)
                 a = HexMath.mod(a, 2 * Math.PI)
